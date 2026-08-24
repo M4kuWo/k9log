@@ -1,0 +1,51 @@
+import { useState } from 'react';
+import { View, Text, TextInput, Pressable, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import * as Crypto from 'expo-crypto';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { createHousehold } from '@k9log/shared';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../auth/AuthProvider';
+
+export function HouseholdSetupScreen() {
+  const { session } = useAuth();
+  const [name, setName] = useState('');
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: async (householdName: string) =>
+      createHousehold(supabase, Crypto.randomUUID(), householdName, session!.user.id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['households'] }),
+  });
+
+  return (
+    <SafeAreaView className="flex-1 bg-white">
+      <View className="flex-1 justify-center px-6 gap-4">
+        <Text className="text-2xl font-bold text-neutral-900">Name your household</Text>
+        <Text className="text-neutral-500">
+          Everyone you invite later will see the same shared timeline.
+        </Text>
+        <TextInput
+          className="border border-neutral-300 rounded-lg px-4 py-3 text-base"
+          placeholder="e.g. The Smiths"
+          value={name}
+          onChangeText={setName}
+        />
+        {mutation.isError && (
+          <Text className="text-red-600">{(mutation.error as Error).message}</Text>
+        )}
+        <Pressable
+          className="bg-neutral-900 rounded-lg py-3 items-center"
+          disabled={!name.trim() || mutation.isPending}
+          onPress={() => mutation.mutate(name.trim())}
+        >
+          {mutation.isPending ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Text className="text-white font-semibold text-base">Continue</Text>
+          )}
+        </Pressable>
+      </View>
+    </SafeAreaView>
+  );
+}

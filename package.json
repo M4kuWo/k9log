@@ -1,0 +1,12 @@
+{
+  "name": "k9log",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "web": "npm run web --workspace=mobile",
+    "start": "npm run start --workspace=mobile"
+  }
+}
