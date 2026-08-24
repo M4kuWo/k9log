@@ -70,25 +70,29 @@ export function TimelineScreen({ route, navigation }: Props) {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      {dogs.length > 1 && (
-        <View className="flex-row gap-2 px-4 py-2">
-          {dogs.map((dog) => (
-            <Pressable
-              key={dog.id}
-              onPress={() => setSelectedDogId(dog.id)}
-              className={
-                dog.id === activeDogId
-                  ? 'bg-neutral-900 rounded-full px-4 py-2'
-                  : 'bg-neutral-100 rounded-full px-4 py-2'
-              }
-            >
-              <Text className={dog.id === activeDogId ? 'text-white' : 'text-neutral-700'}>
-                {dog.name}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-      )}
+      <View className="flex-row gap-2 px-4 py-2">
+        {dogs.map((dog) => (
+          <Pressable
+            key={dog.id}
+            onPress={() => setSelectedDogId(dog.id)}
+            className={
+              dog.id === activeDogId
+                ? 'bg-neutral-900 rounded-full px-4 py-2'
+                : 'bg-neutral-100 rounded-full px-4 py-2'
+            }
+          >
+            <Text className={dog.id === activeDogId ? 'text-white' : 'text-neutral-700'}>
+              {dog.name}
+            </Text>
+          </Pressable>
+        ))}
+        <Pressable
+          onPress={() => navigation.navigate('AddDog')}
+          className="bg-neutral-100 rounded-full px-4 py-2"
+        >
+          <Text className="text-neutral-700">+ Add dog</Text>
+        </Pressable>
+      </View>
 
       {timelineQuery.isLoading ? (
         <View className="flex-1 items-center justify-center">

@@ -43,6 +43,11 @@ function HouseholdGate({ householdId }: { householdId: string }) {
           options={{ title: 'K9log' }}
         />
         <Stack.Screen name="AddLog" component={AddLogScreen} options={{ title: 'New entry' }} />
+        <Stack.Screen name="AddDog" options={{ title: 'Add a dog' }}>
+          {({ navigation }) => (
+            <DogSetupScreen householdId={householdId} onSuccess={() => navigation.goBack()} />
+          )}
+        </Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
   );

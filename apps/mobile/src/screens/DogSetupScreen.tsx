@@ -6,7 +6,13 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createDog } from '@k9log/shared';
 import { supabase } from '../lib/supabase';
 
-export function DogSetupScreen({ householdId }: { householdId: string }) {
+export function DogSetupScreen({
+  householdId,
+  onSuccess,
+}: {
+  householdId: string;
+  onSuccess?: () => void;
+}) {
   const [name, setName] = useState('');
   const [breed, setBreed] = useState('');
   const queryClient = useQueryClient();
@@ -19,7 +25,10 @@ export function DogSetupScreen({ householdId }: { householdId: string }) {
         name: name.trim(),
         breed: breed.trim() || null,
       }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dogs', householdId] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['dogs', householdId] });
+      onSuccess?.();
+    },
   });
 
   return (
