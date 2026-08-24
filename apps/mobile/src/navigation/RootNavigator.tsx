@@ -1,4 +1,4 @@
-import { View, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useQuery } from '@tanstack/react-query';
@@ -10,6 +10,7 @@ import { HouseholdSetupScreen } from '../screens/HouseholdSetupScreen';
 import { DogSetupScreen } from '../screens/DogSetupScreen';
 import { TimelineScreen } from '../screens/TimelineScreen';
 import { AddLogScreen } from '../screens/AddLogScreen';
+import { ReportsScreen } from '../screens/ReportsScreen';
 import type { MainStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
@@ -40,13 +41,23 @@ function HouseholdGate({ householdId }: { householdId: string }) {
           name="Timeline"
           component={TimelineScreen}
           initialParams={{ householdId }}
-          options={{ title: 'K9log' }}
+          options={({ navigation }) => ({
+            title: 'K9log',
+            headerRight: () => (
+              <Pressable onPress={() => navigation.navigate('Reports')} hitSlop={8}>
+                <Text className="text-neutral-900 font-medium">Reports</Text>
+              </Pressable>
+            ),
+          })}
         />
         <Stack.Screen name="AddLog" component={AddLogScreen} options={{ title: 'New entry' }} />
         <Stack.Screen name="AddDog" options={{ title: 'Add a dog' }}>
           {({ navigation }) => (
             <DogSetupScreen householdId={householdId} onSuccess={() => navigation.goBack()} />
           )}
+        </Stack.Screen>
+        <Stack.Screen name="Reports" options={{ title: 'Reports' }}>
+          {() => <ReportsScreen householdId={householdId} />}
         </Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>

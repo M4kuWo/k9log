@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { listDogs, getTimeline, type LogKind, type TimelineEntry } from '@k9log/shared';
 import { supabase } from '../lib/supabase';
+import { DogSelector } from '../components/DogSelector';
 import type { MainStackParamList } from '../navigation/types';
 
 type Props = NativeStackScreenProps<MainStackParamList, 'Timeline'>;
@@ -70,29 +71,12 @@ export function TimelineScreen({ route, navigation }: Props) {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <View className="flex-row gap-2 px-4 py-2">
-        {dogs.map((dog) => (
-          <Pressable
-            key={dog.id}
-            onPress={() => setSelectedDogId(dog.id)}
-            className={
-              dog.id === activeDogId
-                ? 'bg-neutral-900 rounded-full px-4 py-2'
-                : 'bg-neutral-100 rounded-full px-4 py-2'
-            }
-          >
-            <Text className={dog.id === activeDogId ? 'text-white' : 'text-neutral-700'}>
-              {dog.name}
-            </Text>
-          </Pressable>
-        ))}
-        <Pressable
-          onPress={() => navigation.navigate('AddDog')}
-          className="bg-neutral-100 rounded-full px-4 py-2"
-        >
-          <Text className="text-neutral-700">+ Add dog</Text>
-        </Pressable>
-      </View>
+      <DogSelector
+        dogs={dogs}
+        activeDogId={activeDogId}
+        onSelect={setSelectedDogId}
+        onAddDog={() => navigation.navigate('AddDog')}
+      />
 
       {timelineQuery.isLoading ? (
         <View className="flex-1 items-center justify-center">
