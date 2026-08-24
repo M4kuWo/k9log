@@ -4,3 +4,4 @@ dist/
 *.tsbuildinfo
 supabase/.temp/
 supabase/.branches/
+.env
