@@ -2,6 +2,11 @@
 
 Tagged checkpoints in git history. To go back to any version: `git checkout v1.0.0` (or `git diff v1.0.0 main` to see what changed since).
 
+## v1.4.1 — 2026-08-27
+
+- Fixed avatar photo uploads: `fetch(fileUri).blob()` was silently uploading a bogus 14-byte "File not found" response instead of the real image (avatar showed blank everywhere after upload). Now reads the file via expo-file-system + base64 decoding, the reliable approach for local files in React Native.
+- Removed the bottom-right FAB and category-picker sheet — redundant now that every dashboard card has its own "+" quick-add.
+
 ## v1.4.0 — 2026-08-27
 
 Dashboard card visual redesign, per a reference screenshot.
