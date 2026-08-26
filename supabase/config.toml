@@ -385,6 +385,11 @@ deno_version = 2
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 
+# Telegram calls this as a plain webhook, not with a Supabase JWT — auth is
+# instead the X-Telegram-Bot-Api-Secret-Token check inside the function.
+[functions.telegram-webhook]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327

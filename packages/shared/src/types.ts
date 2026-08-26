@@ -19,6 +19,14 @@ export const HouseholdMemberSchema = z.object({
 });
 export type HouseholdMember = z.infer<typeof HouseholdMemberSchema>;
 
+export const TelegramLinkSchema = z.object({
+  chat_id: z.number(),
+  user_id: z.string().uuid(),
+  household_id: z.string().uuid(),
+  linked_at: z.string(),
+});
+export type TelegramLink = z.infer<typeof TelegramLinkSchema>;
+
 export const ProfileSchema = z.object({
   id: z.string().uuid(),
   email: z.string(),

@@ -2,6 +2,15 @@
 
 Tagged checkpoints in git history. To go back to any version: `git checkout v1.0.0` (or `git diff v1.0.0 main` to see what changed since).
 
+## v1.7.0 — 2026-08-26
+
+Telegram bot, as the iOS path instead of a native build (see ARCHITECTURE.md's distribution notes) — going Android-only for the app itself, with a Telegram bot covering the same logging for anyone on iOS.
+
+- New `telegram-webhook` Edge Function: the bot itself. Menu-driven logging for every category (walk — with a start/stop timer, mirroring the app's — food, treats, medication, behavior, vaccines, vet visits), a `/today` summary per dog, and an undo button on every entry.
+- Linking: generate a one-time code from the app's Household screen, send `/link <code>` to the bot once. No separate account for the bot — it writes as the same linked user.
+- New `activity_log` table, populated by a trigger on every write to a log table, `dogs`, or `household_members` — covers both the app and the bot automatically (keyed off which Postgres role made the write), so there's now a durable history of who logged what and when, from either surface.
+- `eas.json` added for building an installable Android APK directly (`eas build --platform android --profile preview`), bypassing the Play Store.
+
 ## v1.6.0 — 2026-08-26
 
 Household sharing, so a second person can join and see the same dogs/timeline.
