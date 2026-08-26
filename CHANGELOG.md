@@ -2,6 +2,14 @@
 
 Tagged checkpoints in git history. To go back to any version: `git checkout v1.0.0` (or `git diff v1.0.0 main` to see what changed since).
 
+## v1.4.0 — 2026-08-27
+
+Dashboard card visual redesign, per a reference screenshot.
+
+- Cards are now solid-color rounded rectangles (previously white with a small colored icon circle).
+- Added a "+" quick-add button directly on each card — jumps straight to that category's log form, skipping the picker sheet.
+- Walk icon is now a dog silhouette instead of a generic walking-person figure.
+
 ## v1.3.0 — 2026-08-27
 
 Data view improvements.
