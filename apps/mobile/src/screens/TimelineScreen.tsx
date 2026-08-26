@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
-import { View, Text, ScrollView, Pressable, Modal, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, Pressable, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { listDogs, getLogsSince, buildDashboardSummary, type LogKind } from '@k9log/shared';
 import { supabase } from '../lib/supabase';
 import { DogSelector } from '../components/DogSelector';
-import { LogIcon } from '../components/LogIcon';
 import { LogGlyph } from '../components/LogGlyph';
 import { useWalkTimer } from '../walkTimer/WalkTimerProvider';
 import { formatElapsed } from '../walkTimer/format';
@@ -21,16 +20,6 @@ import {
 import type { MainStackParamList } from '../navigation/types';
 
 type Props = NativeStackScreenProps<MainStackParamList, 'Timeline'>;
-
-const LOG_KIND_LABELS: Record<LogKind, string> = {
-  food: 'Food',
-  walk: 'Walk',
-  treat: 'Treat',
-  vomit: 'Vomit / illness',
-  medication: 'Medication',
-  vaccine: 'Vaccine',
-  vet_appointment: 'Vet appointment',
-};
 
 const EPOCH = new Date(0).toISOString();
 
@@ -51,7 +40,6 @@ function useElapsedSeconds(startedAtISO?: string): number {
 
 export function TimelineScreen({ route, navigation }: Props) {
   const { householdId } = route.params;
-  const [pickerVisible, setPickerVisible] = useState(false);
   const [vetExpanded, setVetExpanded] = useState(false);
 
   const dogsQuery = useQuery({
@@ -152,34 +140,6 @@ export function TimelineScreen({ route, navigation }: Props) {
           />
         </ScrollView>
       )}
-
-      <Pressable
-        className="absolute bottom-6 right-6 bg-[#E2706A] w-14 h-14 rounded-full items-center justify-center shadow-sm"
-        onPress={() => setPickerVisible(true)}
-        disabled={!activeDogId}
-      >
-        <Text className="text-white text-3xl leading-8">+</Text>
-      </Pressable>
-
-      <Modal visible={pickerVisible} transparent animationType="slide">
-        <Pressable className="flex-1 bg-black/30" onPress={() => setPickerVisible(false)}>
-          <View className="mt-auto bg-white rounded-t-2xl px-4 pt-4 pb-8 gap-1">
-            {(Object.keys(LOG_KIND_LABELS) as LogKind[]).map((kind) => (
-              <Pressable
-                key={kind}
-                className="py-3 border-b border-stone-100 flex-row items-center gap-3"
-                onPress={() => {
-                  setPickerVisible(false);
-                  if (activeDogId) navigation.navigate('AddLog', { dogId: activeDogId, kind });
-                }}
-              >
-                <LogIcon kind={kind} size={18} />
-                <Text className="text-base text-stone-900">{LOG_KIND_LABELS[kind]}</Text>
-              </Pressable>
-            ))}
-          </View>
-        </Pressable>
-      </Modal>
     </SafeAreaView>
   );
 }

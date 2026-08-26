@@ -6,10 +6,12 @@
   "types": "src/index.ts",
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",
+    "base64-arraybuffer": "^1.0.2",
     "zod": "^3.23.8"
   },
   "peerDependencies": {
     "react-native-url-polyfill": "*",
-    "@react-native-async-storage/async-storage": "*"
+    "@react-native-async-storage/async-storage": "*",
+    "expo-file-system": "*"
   }
 }
