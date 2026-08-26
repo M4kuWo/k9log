@@ -26,6 +26,7 @@ export function AvatarPickerScreen({
   const queryClient = useQueryClient();
   const [previewUrl, setPreviewUrl] = useState(currentPhotoUrl);
   const [error, setError] = useState<string | null>(null);
+  const [isPicking, setIsPicking] = useState(false);
 
   const saveMutation = useMutation({
     mutationFn: (photoUrl: string) =>
@@ -37,32 +38,43 @@ export function AvatarPickerScreen({
     onError: (e) => setError((e as Error).message),
   });
 
+  // `retry: false` is important here: the app-wide default retries
+  // mutations 3x, which previously re-ran this whole step (including
+  // relaunching the native image picker) on any upload failure — visible
+  // as the picker UI reopening right after you'd just picked a photo.
   const uploadMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: (asset: ImagePicker.ImagePickerAsset) =>
+      uploadDogPhoto(
+        supabase,
+        dogId,
+        asset.uri,
+        asset.mimeType?.includes('png') ? 'image/png' : 'image/jpeg'
+      ),
+    retry: false,
+    onSuccess: (publicUrl) => saveMutation.mutate(publicUrl),
+    onError: (e) => setError((e as Error).message),
+  });
+
+  async function pickAndUpload() {
+    setError(null);
+    setIsPicking(true);
+    try {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
         allowsEditing: true,
         aspect: [1, 1],
         quality: 0.7,
       });
-      if (result.canceled) return null;
+      if (result.canceled) return;
       const asset = result.assets[0];
       setPreviewUrl(asset.uri);
-      const publicUrl = await uploadDogPhoto(
-        supabase,
-        dogId,
-        asset.uri,
-        asset.mimeType?.includes('png') ? 'image/png' : 'image/jpeg'
-      );
-      return publicUrl;
-    },
-    onSuccess: (publicUrl) => {
-      if (publicUrl) saveMutation.mutate(publicUrl);
-    },
-    onError: (e) => setError((e as Error).message),
-  });
+      uploadMutation.mutate(asset);
+    } finally {
+      setIsPicking(false);
+    }
+  }
 
-  const isBusy = uploadMutation.isPending || saveMutation.isPending;
+  const isBusy = isPicking || uploadMutation.isPending || saveMutation.isPending;
 
   return (
     <SafeAreaView className="flex-1 bg-stone-50">
@@ -95,7 +107,7 @@ export function AvatarPickerScreen({
           className="bg-[#E2706A] rounded-xl py-3 items-center"
           style={isBusy ? { opacity: 0.6 } : undefined}
           disabled={isBusy}
-          onPress={() => uploadMutation.mutate()}
+          onPress={pickAndUpload}
         >
           <Text className="text-white font-semibold text-base">Upload a photo</Text>
         </Pressable>
