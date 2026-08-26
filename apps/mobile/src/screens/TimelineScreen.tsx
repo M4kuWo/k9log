@@ -111,6 +111,14 @@ export function TimelineScreen({ route, navigation }: Props) {
         dogs={dogs}
         activeDogId={activeDogId}
         onSelect={setSelectedDogId}
+        onEditAvatar={(dog, color) =>
+          navigation.navigate('AvatarPicker', {
+            dogId: dog.id,
+            dogName: dog.name,
+            currentPhotoUrl: dog.photo_url,
+            fallbackColor: color,
+          })
+        }
         onAddDog={() => navigation.navigate('AddDog')}
       />
 

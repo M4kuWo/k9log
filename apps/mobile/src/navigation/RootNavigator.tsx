@@ -11,6 +11,7 @@ import { DogSetupScreen } from '../screens/DogSetupScreen';
 import { TimelineScreen } from '../screens/TimelineScreen';
 import { AddLogScreen } from '../screens/AddLogScreen';
 import { ReportsScreen } from '../screens/ReportsScreen';
+import { AvatarPickerScreen } from '../screens/AvatarPickerScreen';
 import type { MainStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
@@ -69,6 +70,15 @@ function HouseholdGate({ householdId }: { householdId: string }) {
         </Stack.Screen>
         <Stack.Screen name="Reports" options={{ title: 'Reports' }}>
           {() => <ReportsScreen householdId={householdId} />}
+        </Stack.Screen>
+        <Stack.Screen name="AvatarPicker" options={{ title: 'Choose avatar' }}>
+          {({ route, navigation }) => (
+            <AvatarPickerScreen
+              {...route.params}
+              householdId={householdId}
+              onDone={() => navigation.goBack()}
+            />
+          )}
         </Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
