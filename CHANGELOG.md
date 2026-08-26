@@ -2,6 +2,29 @@
 
 Tagged checkpoints in git history. To go back to any version: `git checkout v1.0.0` (or `git diff v1.0.0 main` to see what changed since).
 
+## v1.3.0 — 2026-08-27
+
+Data view improvements.
+
+- Renamed "Reports" to "Data" in the header/link text.
+- Added a Year time range (bucketed by month) alongside Day/Week/Month.
+- Added a simple walk-minutes bar chart per range, hand-rolled with plain Views (no new dependency, stays Expo-Go compatible).
+
+## v1.2.0 — 2026-08-27
+
+Dashboard redesign.
+
+- Replaced the flat chronological timeline with a per-category summary card dashboard: Walks, Food, Treats, Medication, Behavior (renamed from "vomit" for the dashboard only), and Vet.
+- Vet card expands in place to show every vaccine (grouped by name) with up-to-date/expired/no-expiry status, plus last/upcoming visit dates.
+- Tapping any other card opens a filtered history list for that category (new CategoryDetail screen), where entries are still tappable to edit.
+
+## v1.1.0 — 2026-08-27
+
+Dog avatars.
+
+- Each dog can have a small circular avatar (shown above its name in the dog selector): a preset paw icon in one of 4 palette colors, or a real photo uploaded from the device, stored in a new Supabase Storage bucket.
+- Falls back to the dog's initial letter in its assigned color when no avatar is set.
+
 ## v1.0.0 — 2026-08-26
 
 Baseline: the full v1 feature set built so far.
