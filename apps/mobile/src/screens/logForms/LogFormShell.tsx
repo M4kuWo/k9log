@@ -41,16 +41,16 @@ export function LogFormShell({
   const [showPicker, setShowPicker] = useState(false);
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-stone-50">
       <ScrollView className="flex-1 px-6" contentContainerClassName="gap-4 py-4">
-        <Text className="text-2xl font-bold text-neutral-900">{title}</Text>
+        <Text className="text-2xl font-bold text-stone-900">{title}</Text>
 
         <Pressable
-          className="border border-neutral-300 rounded-lg px-4 py-3"
+          className="bg-white border border-stone-200 rounded-xl px-4 py-3 shadow-sm"
           onPress={() => setShowPicker(true)}
         >
-          <Text className="text-neutral-500 text-sm">When</Text>
-          <Text className="text-base text-neutral-900">{occurredAt.toLocaleString()}</Text>
+          <Text className="text-stone-500 text-sm">When</Text>
+          <Text className="text-base text-stone-900">{occurredAt.toLocaleString()}</Text>
         </Pressable>
         {showPicker && (
           <DateTimePicker
@@ -66,9 +66,9 @@ export function LogFormShell({
         {children}
 
         <View className="gap-2">
-          <Text className="text-neutral-500 text-sm">Notes (optional)</Text>
+          <Text className="text-stone-500 text-sm">Notes (optional)</Text>
           <TextInput
-            className="border border-neutral-300 rounded-lg px-4 py-3 text-base"
+            className="bg-white border border-stone-200 rounded-xl px-4 py-3 text-base shadow-sm"
             placeholder="Anything else worth noting"
             value={notes}
             onChangeText={onChangeNotes}
@@ -81,8 +81,8 @@ export function LogFormShell({
         <Pressable
           className={
             isSubmitting
-              ? 'bg-neutral-400 rounded-lg py-3 items-center'
-              : 'bg-neutral-900 rounded-lg py-3 items-center'
+              ? 'bg-orange-300 rounded-xl py-3 items-center'
+              : 'bg-orange-600 rounded-xl py-3 items-center'
           }
           disabled={isSubmitting}
           onPress={onSubmit}

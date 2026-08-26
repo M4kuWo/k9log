@@ -47,16 +47,17 @@ export function SignInScreen() {
     !isSubmitting && !!email && !!password && (mode === 'sign-in' || !passwordsMismatch);
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-stone-50">
       <View className="flex-1 justify-center px-6 gap-4">
-        <Text className="text-3xl font-bold text-neutral-900 mb-2">K9log</Text>
-        <Text className="text-neutral-500 mb-4">
+        <Text className="text-3xl font-bold text-orange-600 mb-2">K9log</Text>
+        <Text className="text-stone-500 mb-4">
           {mode === 'sign-in' ? 'Sign in to your household' : 'Create your account'}
         </Text>
 
         <TextInput
-          className="border border-neutral-300 rounded-lg px-4 py-3 text-base"
+          className="bg-white border border-stone-200 rounded-xl px-4 py-3 text-base shadow-sm"
           placeholder="Email"
+          placeholderTextColor="#a8a29e"
           autoCapitalize="none"
           keyboardType="email-address"
           value={email}
@@ -79,7 +80,9 @@ export function SignInScreen() {
         {error && <Text className="text-red-600">{error}</Text>}
 
         <Pressable
-          className="bg-neutral-900 rounded-lg py-3 items-center"
+          className={
+            canSubmit ? 'bg-orange-600 rounded-xl py-3 items-center' : 'bg-orange-300 rounded-xl py-3 items-center'
+          }
           onPress={handleSubmit}
           disabled={!canSubmit}
         >
@@ -93,10 +96,11 @@ export function SignInScreen() {
         </Pressable>
 
         <Pressable onPress={switchMode}>
-          <Text className="text-neutral-500 text-center">
-            {mode === 'sign-in'
-              ? "Don't have an account? Create one"
-              : 'Already have an account? Sign in'}
+          <Text className="text-stone-500 text-center">
+            {mode === 'sign-in' ? "Don't have an account? " : 'Already have an account? '}
+            <Text className="text-orange-600 font-medium">
+              {mode === 'sign-in' ? 'Create one' : 'Sign in'}
+            </Text>
           </Text>
         </Pressable>
       </View>

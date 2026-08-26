@@ -19,15 +19,16 @@ export function HouseholdSetupScreen() {
   });
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-stone-50">
       <View className="flex-1 justify-center px-6 gap-4">
-        <Text className="text-2xl font-bold text-neutral-900">Name your household</Text>
-        <Text className="text-neutral-500">
+        <Text className="text-2xl font-bold text-stone-900">Name your household</Text>
+        <Text className="text-stone-500">
           Everyone you invite later will see the same shared timeline.
         </Text>
         <TextInput
-          className="border border-neutral-300 rounded-lg px-4 py-3 text-base"
+          className="bg-white border border-stone-200 rounded-xl px-4 py-3 text-base shadow-sm"
           placeholder="e.g. The Smiths"
+          placeholderTextColor="#a8a29e"
           value={name}
           onChangeText={setName}
         />
@@ -35,7 +36,11 @@ export function HouseholdSetupScreen() {
           <Text className="text-red-600">{(mutation.error as Error).message}</Text>
         )}
         <Pressable
-          className="bg-neutral-900 rounded-lg py-3 items-center"
+          className={
+            !name.trim() || mutation.isPending
+              ? 'bg-orange-300 rounded-xl py-3 items-center'
+              : 'bg-orange-600 rounded-xl py-3 items-center'
+          }
           disabled={!name.trim() || mutation.isPending}
           onPress={() => mutation.mutate(name.trim())}
         >

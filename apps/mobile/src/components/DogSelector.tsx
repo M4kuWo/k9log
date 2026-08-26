@@ -20,18 +20,21 @@ export function DogSelector({
           onPress={() => onSelect(dog.id)}
           className={
             dog.id === activeDogId
-              ? 'bg-neutral-900 rounded-full px-4 py-2'
-              : 'bg-neutral-100 rounded-full px-4 py-2'
+              ? 'bg-orange-600 rounded-full px-4 py-2'
+              : 'bg-white border border-stone-200 rounded-full px-4 py-2'
           }
         >
-          <Text className={dog.id === activeDogId ? 'text-white' : 'text-neutral-700'}>
+          <Text className={dog.id === activeDogId ? 'text-white font-medium' : 'text-stone-700'}>
             {dog.name}
           </Text>
         </Pressable>
       ))}
       {onAddDog && (
-        <Pressable onPress={onAddDog} className="bg-neutral-100 rounded-full px-4 py-2">
-          <Text className="text-neutral-700">+ Add dog</Text>
+        <Pressable
+          onPress={onAddDog}
+          className="border border-dashed border-stone-300 rounded-full px-4 py-2"
+        >
+          <Text className="text-stone-500">+ Add dog</Text>
         </Pressable>
       )}
     </View>

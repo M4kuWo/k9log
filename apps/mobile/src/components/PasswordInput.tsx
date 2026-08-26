@@ -8,7 +8,8 @@ export function PasswordInput(props: TextInputProps) {
   return (
     <View className="relative justify-center">
       <TextInput
-        className="border border-neutral-300 rounded-lg px-4 py-3 pr-11 text-base"
+        className="bg-white border border-stone-200 rounded-xl px-4 py-3 pr-11 text-base shadow-sm"
+        placeholderTextColor="#a8a29e"
         secureTextEntry={!visible}
         autoCapitalize="none"
         autoCorrect={false}
@@ -19,7 +20,7 @@ export function PasswordInput(props: TextInputProps) {
         onPress={() => setVisible((v) => !v)}
         hitSlop={8}
       >
-        <Ionicons name={visible ? 'eye-off' : 'eye'} size={20} color="#737373" />
+        <Ionicons name={visible ? 'eye-off' : 'eye'} size={20} color="#a8a29e" />
       </Pressable>
     </View>
   );

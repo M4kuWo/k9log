@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Text, Pressable, ActivityIndicator, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import {
   listDogs,
@@ -8,9 +9,11 @@ import {
   summarize,
   rangeStartISO,
   type ReportRange,
+  type LogKind,
 } from '@k9log/shared';
 import { supabase } from '../lib/supabase';
 import { DogSelector } from '../components/DogSelector';
+import { LOG_KIND_ICONS } from '../constants/logIcons';
 
 const RANGE_LABELS: Record<ReportRange, string> = { day: 'Day', week: 'Week', month: 'Month' };
 
@@ -28,13 +31,26 @@ function formatAmountByUnit(byUnit: Record<string, number>): string | undefined 
   return entries.map(([unit, amount]) => `${amount} ${unit}`).join(', ');
 }
 
-function ReportCard({ title, value, sub }: { title: string; value: string; sub?: string }) {
+function ReportCard({
+  kind,
+  title,
+  value,
+  sub,
+}: {
+  kind: LogKind;
+  title: string;
+  value: string;
+  sub?: string;
+}) {
   return (
-    <View className="border border-neutral-200 rounded-lg px-4 py-3 flex-row justify-between items-center">
-      <Text className="text-base font-medium text-neutral-900">{title}</Text>
+    <View className="bg-white border border-stone-200 rounded-xl px-4 py-3 shadow-sm flex-row items-center gap-3">
+      <View className="w-9 h-9 rounded-full bg-orange-50 items-center justify-center">
+        <Ionicons name={LOG_KIND_ICONS[kind]} size={18} color="#EA580C" />
+      </View>
+      <Text className="flex-1 text-base font-medium text-stone-900">{title}</Text>
       <View className="items-end">
-        <Text className="text-base text-neutral-900">{value}</Text>
-        {sub && <Text className="text-neutral-400 text-sm">{sub}</Text>}
+        <Text className="text-base text-stone-900">{value}</Text>
+        {sub && <Text className="text-stone-400 text-sm">{sub}</Text>}
       </View>
     </View>
   );
@@ -60,7 +76,7 @@ export function ReportsScreen({ householdId }: { householdId: string }) {
   const summary = logsQuery.data ? summarize(logsQuery.data) : null;
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-stone-50">
       <DogSelector dogs={dogs} activeDogId={activeDogId} onSelect={setSelectedDogId} />
 
       <View className="flex-row gap-2 px-4 pb-2">
@@ -69,10 +85,12 @@ export function ReportsScreen({ householdId }: { householdId: string }) {
             key={r}
             onPress={() => setRange(r)}
             className={
-              r === range ? 'bg-neutral-900 rounded-full px-4 py-2' : 'bg-neutral-100 rounded-full px-4 py-2'
+              r === range
+                ? 'bg-orange-600 rounded-full px-4 py-2'
+                : 'bg-white border border-stone-200 rounded-full px-4 py-2'
             }
           >
-            <Text className={r === range ? 'text-white' : 'text-neutral-700'}>
+            <Text className={r === range ? 'text-white font-medium' : 'text-stone-700'}>
               {RANGE_LABELS[r]}
             </Text>
           </Pressable>
@@ -81,29 +99,36 @@ export function ReportsScreen({ householdId }: { householdId: string }) {
 
       {logsQuery.isLoading || !summary ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator />
+          <ActivityIndicator color="#EA580C" />
         </View>
       ) : (
         <ScrollView contentContainerClassName="px-4 gap-2 py-2">
           <ReportCard
+            kind="walk"
             title="Walks"
             value={`${summary.walk.count}`}
             sub={summary.walk.count ? `${formatDuration(summary.walk.totalDurationSeconds)} total` : undefined}
           />
           <ReportCard
+            kind="food"
             title="Food"
             value={`${summary.food.count} meal${summary.food.count === 1 ? '' : 's'}`}
             sub={formatAmountByUnit(summary.food.amountByUnit)}
           />
           <ReportCard
+            kind="treat"
             title="Treats"
             value={`${summary.treat.count}`}
             sub={summary.treat.totalQuantity != null ? `${summary.treat.totalQuantity} total` : undefined}
           />
-          <ReportCard title="Vomit / illness" value={`${summary.vomit.count}`} />
-          <ReportCard title="Medication" value={`${summary.medication.count}`} />
-          <ReportCard title="Vaccines" value={`${summary.vaccine.count}`} />
-          <ReportCard title="Vet appointments" value={`${summary.vet_appointment.count}`} />
+          <ReportCard kind="vomit" title="Vomit / illness" value={`${summary.vomit.count}`} />
+          <ReportCard kind="medication" title="Medication" value={`${summary.medication.count}`} />
+          <ReportCard kind="vaccine" title="Vaccines" value={`${summary.vaccine.count}`} />
+          <ReportCard
+            kind="vet_appointment"
+            title="Vet appointments"
+            value={`${summary.vet_appointment.count}`}
+          />
         </ScrollView>
       )}
     </SafeAreaView>

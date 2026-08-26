@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { View, Text, FlatList, Pressable, Modal, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { listDogs, getTimeline, type LogKind, type TimelineEntry } from '@k9log/shared';
@@ -8,6 +9,7 @@ import { supabase } from '../lib/supabase';
 import { DogSelector } from '../components/DogSelector';
 import { useWalkTimer } from '../walkTimer/WalkTimerProvider';
 import { formatElapsed } from '../walkTimer/format';
+import { LOG_KIND_ICONS } from '../constants/logIcons';
 import type { MainStackParamList } from '../navigation/types';
 
 type Props = NativeStackScreenProps<MainStackParamList, 'Timeline'>;
@@ -21,6 +23,14 @@ const LOG_KIND_LABELS: Record<LogKind, string> = {
   vaccine: 'Vaccine',
   vet_appointment: 'Vet appointment',
 };
+
+function LogIcon({ kind, size = 20 }: { kind: LogKind; size?: number }) {
+  return (
+    <View className="w-9 h-9 rounded-full bg-orange-50 items-center justify-center">
+      <Ionicons name={LOG_KIND_ICONS[kind]} size={size} color="#EA580C" />
+    </View>
+  );
+}
 
 function entryTitle(entry: TimelineEntry): string {
   switch (entry.kind) {
@@ -91,7 +101,7 @@ export function TimelineScreen({ route, navigation }: Props) {
   const activeWalkElapsed = useElapsedSeconds(activeWalkStartedAt);
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-stone-50">
       <DogSelector
         dogs={dogs}
         activeDogId={activeDogId}
@@ -101,10 +111,13 @@ export function TimelineScreen({ route, navigation }: Props) {
 
       {activeWalkStartedAt && activeDogId && (
         <Pressable
-          className="mx-4 mb-2 bg-neutral-900 rounded-lg px-4 py-3 flex-row items-center justify-between"
+          className="mx-4 mb-2 bg-orange-600 rounded-xl px-4 py-3 flex-row items-center justify-between shadow-sm"
           onPress={() => navigation.navigate('AddLog', { dogId: activeDogId, kind: 'walk' })}
         >
-          <Text className="text-white font-medium">Walk in progress — tap to review</Text>
+          <View className="flex-row items-center gap-2">
+            <Ionicons name="walk-outline" size={18} color="white" />
+            <Text className="text-white font-medium">Walk in progress — tap to review</Text>
+          </View>
           <Text className="text-white font-mono text-base">
             {formatElapsed(activeWalkElapsed)}
           </Text>
@@ -113,7 +126,7 @@ export function TimelineScreen({ route, navigation }: Props) {
 
       {timelineQuery.isLoading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator />
+          <ActivityIndicator color="#EA580C" />
         </View>
       ) : (
         <FlatList
@@ -121,13 +134,13 @@ export function TimelineScreen({ route, navigation }: Props) {
           keyExtractor={(item) => item.log.id}
           contentContainerClassName="px-4 gap-2 py-2"
           ListEmptyComponent={
-            <Text className="text-neutral-400 text-center mt-12">
+            <Text className="text-stone-400 text-center mt-12">
               No entries yet — tap + to log something.
             </Text>
           }
           renderItem={({ item }) => (
             <Pressable
-              className="border border-neutral-200 rounded-lg px-4 py-3"
+              className="bg-white border border-stone-200 rounded-xl px-4 py-3 shadow-sm flex-row items-center gap-3"
               onPress={() =>
                 navigation.navigate('AddLog', {
                   dogId: item.log.dog_id,
@@ -136,18 +149,21 @@ export function TimelineScreen({ route, navigation }: Props) {
                 })
               }
             >
-              <Text className="text-base font-medium text-neutral-900">{entryTitle(item)}</Text>
-              <Text className="text-neutral-400 text-sm mt-1">
-                {formatWhen(item.log.occurred_at)}
-                {item.log.notes ? ` · ${item.log.notes}` : ''}
-              </Text>
+              <LogIcon kind={item.kind} />
+              <View className="flex-1">
+                <Text className="text-base font-medium text-stone-900">{entryTitle(item)}</Text>
+                <Text className="text-stone-400 text-sm mt-0.5">
+                  {formatWhen(item.log.occurred_at)}
+                  {item.log.notes ? ` · ${item.log.notes}` : ''}
+                </Text>
+              </View>
             </Pressable>
           )}
         />
       )}
 
       <Pressable
-        className="absolute bottom-6 right-6 bg-neutral-900 w-14 h-14 rounded-full items-center justify-center"
+        className="absolute bottom-6 right-6 bg-orange-600 w-14 h-14 rounded-full items-center justify-center shadow-sm"
         onPress={() => setPickerVisible(true)}
         disabled={!activeDogId}
       >
@@ -160,13 +176,14 @@ export function TimelineScreen({ route, navigation }: Props) {
             {(Object.keys(LOG_KIND_LABELS) as LogKind[]).map((kind) => (
               <Pressable
                 key={kind}
-                className="py-3 border-b border-neutral-100"
+                className="py-3 border-b border-stone-100 flex-row items-center gap-3"
                 onPress={() => {
                   setPickerVisible(false);
                   if (activeDogId) navigation.navigate('AddLog', { dogId: activeDogId, kind });
                 }}
               >
-                <Text className="text-base text-neutral-900">{LOG_KIND_LABELS[kind]}</Text>
+                <LogIcon kind={kind} size={18} />
+                <Text className="text-base text-stone-900">{LOG_KIND_LABELS[kind]}</Text>
               </Pressable>
             ))}
           </View>

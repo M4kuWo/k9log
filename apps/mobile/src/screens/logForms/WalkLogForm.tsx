@@ -133,11 +133,11 @@ export function WalkLogForm({
 
       {source === 'timer' ? (
         <View className="items-center gap-3 py-2">
-          <Text className="text-4xl font-mono text-neutral-900">
+          <Text className="text-4xl font-mono text-stone-900">
             {formatElapsed(elapsedSeconds)}
           </Text>
           <Pressable
-            className={isRunning ? 'bg-red-600 rounded-full px-6 py-3' : 'bg-neutral-900 rounded-full px-6 py-3'}
+            className={isRunning ? 'bg-red-600 rounded-full px-6 py-3' : 'bg-orange-600 rounded-full px-6 py-3'}
             onPress={() => {
               if (isRunning) {
                 if (intervalRef.current) clearInterval(intervalRef.current);
@@ -155,7 +155,7 @@ export function WalkLogForm({
             <Text className="text-white font-semibold">{isRunning ? 'Stop' : 'Start walk'}</Text>
           </Pressable>
           {isRunning && (
-            <Text className="text-neutral-400 text-sm">
+            <Text className="text-stone-400 text-sm">
               Running — you can leave this screen, it'll keep counting.
             </Text>
           )}
@@ -163,13 +163,14 @@ export function WalkLogForm({
         </View>
       ) : (
         <View className="gap-2">
-          <Text className="text-neutral-500 text-sm">Duration (minutes)</Text>
+          <Text className="text-stone-500 text-sm">Duration (minutes)</Text>
           <TextInput
             className={
               durationError
-                ? 'border border-red-400 rounded-lg px-4 py-3 text-base'
-                : 'border border-neutral-300 rounded-lg px-4 py-3 text-base'
+                ? 'bg-white border border-red-400 rounded-xl px-4 py-3 text-base shadow-sm'
+                : 'bg-white border border-stone-200 rounded-xl px-4 py-3 text-base shadow-sm'
             }
+            placeholderTextColor="#a8a29e"
             placeholder="e.g. 30"
             keyboardType="decimal-pad"
             value={manualMinutes}

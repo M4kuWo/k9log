@@ -95,8 +95,12 @@ export function MedicationLogForm({
         </View>
       </View>
       <View className="flex-row items-center justify-between">
-        <Text className="text-neutral-700 text-base">Recurring</Text>
-        <Switch value={isRecurring} onValueChange={setIsRecurring} />
+        <Text className="text-stone-700 text-base">Recurring</Text>
+        <Switch
+          value={isRecurring}
+          onValueChange={setIsRecurring}
+          trackColor={{ true: '#EA580C' }}
+        />
       </View>
       {isRecurring && (
         <TextField
