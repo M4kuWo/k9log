@@ -5,16 +5,12 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { insertWalkLog, softDeleteLog, type WalkLog } from '@k9log/shared';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../auth/AuthProvider';
+import { useWalkTimer } from '../../walkTimer/WalkTimerProvider';
+import { formatElapsed } from '../../walkTimer/format';
 import { ChipGroup } from '../../components/ChipGroup';
 import { LogFormShell } from './LogFormShell';
 
 const SOURCES = ['timer', 'manual'] as const;
-
-function formatElapsed(seconds: number) {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${m}:${s.toString().padStart(2, '0')}`;
-}
 
 export function WalkLogForm({
   dogId,
@@ -27,13 +23,22 @@ export function WalkLogForm({
 }) {
   const { session } = useAuth();
   const queryClient = useQueryClient();
+  const { activeTimers, startTimer, clearTimer } = useWalkTimer();
+  // Editing a past walk never resumes a live timer for it.
+  const persistedStart = !log ? activeTimers[dogId] : undefined;
+
   const [occurredAt, setOccurredAt] = useState(log ? new Date(log.occurred_at) : new Date());
   const [notes, setNotes] = useState(log?.notes ?? '');
   // Editing an existing walk always uses the manual/duration field — there's
   // no live timer context to resume for a walk that already happened.
   const [source, setSource] = useState<(typeof SOURCES)[number]>(log ? 'manual' : 'timer');
 
-  const [timerStart, setTimerStart] = useState<Date | null>(null);
+  // `timerStart` is the frozen reference used for start_time even after
+  // Stop is pressed; `isRunning` controls the ticking and the button state.
+  const [timerStart, setTimerStart] = useState<Date | null>(
+    persistedStart ? new Date(persistedStart) : null
+  );
+  const [isRunning, setIsRunning] = useState(!!persistedStart);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -42,16 +47,27 @@ export function WalkLogForm({
   );
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
 
+  // Picks up a timer that was already running when this screen mounts (e.g.
+  // navigated in from the Timeline's "walk in progress" banner), including
+  // the case where the active-timers store hadn't finished loading yet on
+  // the very first render.
   useEffect(() => {
-    if (timerStart) {
-      intervalRef.current = setInterval(() => {
-        setElapsedSeconds(Math.floor((Date.now() - timerStart.getTime()) / 1000));
-      }, 1000);
+    if (persistedStart) {
+      setTimerStart(new Date(persistedStart));
+      setIsRunning(true);
+    }
+  }, [persistedStart]);
+
+  useEffect(() => {
+    if (timerStart && isRunning) {
+      const tick = () => setElapsedSeconds(Math.floor((Date.now() - timerStart.getTime()) / 1000));
+      tick();
+      intervalRef.current = setInterval(tick, 1000);
     }
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [timerStart]);
+  }, [timerStart, isRunning]);
 
   const durationSeconds =
     source === 'timer' ? elapsedSeconds : manualMinutes ? Math.round(Number(manualMinutes) * 60) : null;
@@ -81,6 +97,9 @@ export function WalkLogForm({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['timeline', dogId] });
+      // Covers saving directly off a still-running timer, without an
+      // explicit Stop press first.
+      if (!log) clearTimer(dogId);
       onSuccess();
     },
   });
@@ -118,18 +137,28 @@ export function WalkLogForm({
             {formatElapsed(elapsedSeconds)}
           </Text>
           <Pressable
-            className={timerStart ? 'bg-red-600 rounded-full px-6 py-3' : 'bg-neutral-900 rounded-full px-6 py-3'}
+            className={isRunning ? 'bg-red-600 rounded-full px-6 py-3' : 'bg-neutral-900 rounded-full px-6 py-3'}
             onPress={() => {
-              if (timerStart) {
+              if (isRunning) {
                 if (intervalRef.current) clearInterval(intervalRef.current);
+                setIsRunning(false);
+                if (!log) clearTimer(dogId);
               } else {
-                setTimerStart(new Date());
+                const now = new Date();
+                setTimerStart(now);
                 setElapsedSeconds(0);
+                setIsRunning(true);
+                if (!log) startTimer(dogId, now.toISOString());
               }
             }}
           >
-            <Text className="text-white font-semibold">{timerStart ? 'Stop' : 'Start walk'}</Text>
+            <Text className="text-white font-semibold">{isRunning ? 'Stop' : 'Start walk'}</Text>
           </Pressable>
+          {isRunning && (
+            <Text className="text-neutral-400 text-sm">
+              Running — you can leave this screen, it'll keep counting.
+            </Text>
+          )}
           {durationError && <Text className="text-red-600 text-sm">{durationError}</Text>}
         </View>
       ) : (

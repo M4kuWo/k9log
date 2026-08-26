@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View, Text, FlatList, Pressable, Modal, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
@@ -6,6 +6,8 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { listDogs, getTimeline, type LogKind, type TimelineEntry } from '@k9log/shared';
 import { supabase } from '../lib/supabase';
 import { DogSelector } from '../components/DogSelector';
+import { useWalkTimer } from '../walkTimer/WalkTimerProvider';
+import { formatElapsed } from '../walkTimer/format';
 import type { MainStackParamList } from '../navigation/types';
 
 type Props = NativeStackScreenProps<MainStackParamList, 'Timeline'>;
@@ -41,6 +43,21 @@ function entryTitle(entry: TimelineEntry): string {
   }
 }
 
+function useElapsedSeconds(startedAtISO?: string): number {
+  const [elapsed, setElapsed] = useState(0);
+  useEffect(() => {
+    if (!startedAtISO) {
+      setElapsed(0);
+      return;
+    }
+    const tick = () => setElapsed(Math.floor((Date.now() - new Date(startedAtISO).getTime()) / 1000));
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [startedAtISO]);
+  return elapsed;
+}
+
 function formatWhen(iso: string): string {
   const date = new Date(iso);
   const diffMinutes = Math.round((Date.now() - date.getTime()) / 60000);
@@ -69,6 +86,10 @@ export function TimelineScreen({ route, navigation }: Props) {
     enabled: !!activeDogId,
   });
 
+  const { activeTimers } = useWalkTimer();
+  const activeWalkStartedAt = activeDogId ? activeTimers[activeDogId] : undefined;
+  const activeWalkElapsed = useElapsedSeconds(activeWalkStartedAt);
+
   return (
     <SafeAreaView className="flex-1 bg-white">
       <DogSelector
@@ -77,6 +98,18 @@ export function TimelineScreen({ route, navigation }: Props) {
         onSelect={setSelectedDogId}
         onAddDog={() => navigation.navigate('AddDog')}
       />
+
+      {activeWalkStartedAt && activeDogId && (
+        <Pressable
+          className="mx-4 mb-2 bg-neutral-900 rounded-lg px-4 py-3 flex-row items-center justify-between"
+          onPress={() => navigation.navigate('AddLog', { dogId: activeDogId, kind: 'walk' })}
+        >
+          <Text className="text-white font-medium">Walk in progress — tap to review</Text>
+          <Text className="text-white font-mono text-base">
+            {formatElapsed(activeWalkElapsed)}
+          </Text>
+        </Pressable>
+      )}
 
       {timelineQuery.isLoading ? (
         <View className="flex-1 items-center justify-center">

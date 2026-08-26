@@ -4,6 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { queryClient, asyncStoragePersister } from './src/lib/queryClient';
 import { AuthProvider } from './src/auth/AuthProvider';
+import { WalkTimerProvider } from './src/walkTimer/WalkTimerProvider';
 import { RootNavigator } from './src/navigation/RootNavigator';
 
 export default function App() {
@@ -14,7 +15,9 @@ export default function App() {
         persistOptions={{ persister: asyncStoragePersister }}
       >
         <AuthProvider>
-          <RootNavigator />
+          <WalkTimerProvider>
+            <RootNavigator />
+          </WalkTimerProvider>
         </AuthProvider>
         <StatusBar style="auto" />
       </PersistQueryClientProvider>
