@@ -54,7 +54,7 @@ function HouseholdGate({ householdId }: { householdId: string }) {
             title: 'K9log',
             headerRight: () => (
               <Pressable onPress={() => navigation.navigate('Reports')} hitSlop={8}>
-                <Text className="text-[#E2706A] font-medium">Reports</Text>
+                <Text className="text-[#E2706A] font-medium">Data</Text>
               </Pressable>
             ),
           })}
@@ -69,7 +69,7 @@ function HouseholdGate({ householdId }: { householdId: string }) {
             <DogSetupScreen householdId={householdId} onSuccess={() => navigation.goBack()} />
           )}
         </Stack.Screen>
-        <Stack.Screen name="Reports" options={{ title: 'Reports' }}>
+        <Stack.Screen name="Reports" options={{ title: 'Data' }}>
           {() => <ReportsScreen householdId={householdId} />}
         </Stack.Screen>
         <Stack.Screen name="AvatarPicker" options={{ title: 'Choose avatar' }}>

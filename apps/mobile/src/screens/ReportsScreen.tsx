@@ -8,15 +8,22 @@ import {
   getLogsSince,
   summarize,
   rangeStartISO,
+  bucketWalkMinutes,
   type ReportRange,
   type LogKind,
 } from '@k9log/shared';
 import { supabase } from '../lib/supabase';
 import { DogSelector } from '../components/DogSelector';
+import { BarChart } from '../components/BarChart';
 import { LOG_KIND_ICONS, LOG_KIND_COLORS } from '../constants/logIcons';
 import { PALETTE, PALETTE_SOFT } from '../constants/palette';
 
-const RANGE_LABELS: Record<ReportRange, string> = { day: 'Day', week: 'Week', month: 'Month' };
+const RANGE_LABELS: Record<ReportRange, string> = {
+  day: 'Day',
+  week: 'Week',
+  month: 'Month',
+  year: 'Year',
+};
 
 function formatDuration(totalSeconds: number): string {
   const minutes = Math.round(totalSeconds / 60);
@@ -108,6 +115,12 @@ export function ReportsScreen({ householdId }: { householdId: string }) {
         </View>
       ) : (
         <ScrollView contentContainerClassName="px-4 gap-2 py-2">
+          {range !== 'day' && (
+            <View className="bg-white border border-stone-200 rounded-xl px-4 py-3 shadow-sm gap-2 mb-1">
+              <Text className="font-semibold text-stone-900">Walk minutes</Text>
+              <BarChart data={bucketWalkMinutes(logsQuery.data ?? [], range)} unit="minutes" />
+            </View>
+          )}
           <ReportCard
             kind="walk"
             title="Walks"

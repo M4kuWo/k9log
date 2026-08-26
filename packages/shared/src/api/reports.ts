@@ -11,9 +11,9 @@ import {
   type TimelineEntry,
 } from '../types';
 
-export type ReportRange = 'day' | 'week' | 'month';
+export type ReportRange = 'day' | 'week' | 'month' | 'year';
 
-const RANGE_DAYS: Record<ReportRange, number> = { day: 1, week: 7, month: 30 };
+const RANGE_DAYS: Record<ReportRange, number> = { day: 1, week: 7, month: 30, year: 365 };
 
 export function rangeStartISO(range: ReportRange, now = new Date()): string {
   const start = new Date(now);
@@ -70,6 +70,58 @@ export type ReportSummary = {
   vaccine: { count: number };
   vet_appointment: { count: number };
 };
+
+export type ChartBucket = { label: string; minutes: number };
+
+// Buckets walk duration into a small number of points suitable for a bar
+// chart: daily buckets for day/week/month (day just has the one), monthly
+// buckets for year (365 daily bars would be unreadable).
+export function bucketWalkMinutes(
+  entries: TimelineEntry[],
+  range: ReportRange,
+  now = new Date()
+): ChartBucket[] {
+  const walks = entries.filter((e): e is Extract<TimelineEntry, { kind: 'walk' }> => e.kind === 'walk');
+
+  if (range === 'year') {
+    const buckets: ChartBucket[] = [];
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      buckets.push({ label: d.toLocaleDateString(undefined, { month: 'short' }), minutes: 0 });
+    }
+    for (const { log } of walks) {
+      const d = new Date(log.occurred_at);
+      const monthsAgo =
+        (now.getFullYear() - d.getFullYear()) * 12 + (now.getMonth() - d.getMonth());
+      if (monthsAgo >= 0 && monthsAgo < 12) {
+        buckets[11 - monthsAgo].minutes += (log.duration_seconds ?? 0) / 60;
+      }
+    }
+    return buckets.map((b) => ({ ...b, minutes: Math.round(b.minutes) }));
+  }
+
+  const days = range === 'month' ? 30 : range === 'week' ? 7 : 1;
+  const buckets: ChartBucket[] = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - i);
+    buckets.push({
+      label: days === 1 ? 'Today' : d.toLocaleDateString(undefined, { weekday: 'short' }),
+      minutes: 0,
+    });
+  }
+  const today = new Date(now);
+  today.setHours(0, 0, 0, 0);
+  for (const { log } of walks) {
+    const d = new Date(log.occurred_at);
+    d.setHours(0, 0, 0, 0);
+    const daysAgo = Math.round((today.getTime() - d.getTime()) / 86400000);
+    if (daysAgo >= 0 && daysAgo < days) {
+      buckets[days - 1 - daysAgo].minutes += (log.duration_seconds ?? 0) / 60;
+    }
+  }
+  return buckets.map((b) => ({ ...b, minutes: Math.round(b.minutes) }));
+}
 
 // Food amounts are summed per-unit rather than blindly added together, since
 // a household can log the same dog in grams one day and cups another.
