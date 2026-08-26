@@ -2,6 +2,10 @@
 
 Tagged checkpoints in git history. To go back to any version: `git checkout v1.0.0` (or `git diff v1.0.0 main` to see what changed since).
 
+## v1.5.0 — 2026-08-27
+
+Settings screen (gear icon in the header) with Light / Dark / Match device theme choice, persisted across sessions. Dark variants applied throughout the app. The manual light/dark override only works natively (iOS/Android) — on web, NativeWind's dark mode ties to a real CSS media query the OS controls, which JS can't force.
+
 ## v1.4.2 — 2026-08-27
 
 The v1.4.1 upload fix was itself wrong — turned out expo-file-system 57 dropped `readAsStringAsync` in favor of a new `File`/`Directory` class API (`new File(uri).arrayBuffer()`), which is what this project's own AGENTS.md warns about re-checking before writing Expo code. Also fixed the picker reopening right after picking a photo: the app's default 3x mutation retry was re-running the whole upload step (including the picker launch) on failure — the picker launch is no longer part of the retrying mutation.
