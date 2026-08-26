@@ -1,5 +1,13 @@
 import { useState, type ReactNode } from 'react';
-import { View, Text, TextInput, Pressable, ActivityIndicator, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  ActivityIndicator,
+  ScrollView,
+  Alert,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
@@ -10,8 +18,11 @@ export function LogFormShell({
   notes,
   onChangeNotes,
   onSubmit,
+  submitLabel = 'Save',
   isSubmitting,
   error,
+  onDelete,
+  isDeleting,
   children,
 }: {
   title: string;
@@ -20,8 +31,11 @@ export function LogFormShell({
   notes: string;
   onChangeNotes: (notes: string) => void;
   onSubmit: () => void;
+  submitLabel?: string;
   isSubmitting: boolean;
   error: string | null;
+  onDelete?: () => void;
+  isDeleting?: boolean;
   children: ReactNode;
 }) {
   const [showPicker, setShowPicker] = useState(false);
@@ -76,9 +90,28 @@ export function LogFormShell({
           {isSubmitting ? (
             <ActivityIndicator color="white" />
           ) : (
-            <Text className="text-white font-semibold text-base">Save</Text>
+            <Text className="text-white font-semibold text-base">{submitLabel}</Text>
           )}
         </Pressable>
+
+        {onDelete && (
+          <Pressable
+            className="py-3 items-center"
+            disabled={isDeleting}
+            onPress={() =>
+              Alert.alert('Delete this entry?', 'This cannot be undone from the app.', [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Delete', style: 'destructive', onPress: onDelete },
+              ])
+            }
+          >
+            {isDeleting ? (
+              <ActivityIndicator color="#dc2626" />
+            ) : (
+              <Text className="text-red-600 font-medium">Delete entry</Text>
+            )}
+          </Pressable>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

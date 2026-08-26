@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { View, Text, TextInput, Pressable } from 'react-native';
 import * as Crypto from 'expo-crypto';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { insertWalkLog } from '@k9log/shared';
+import { insertWalkLog, softDeleteLog, type WalkLog } from '@k9log/shared';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../auth/AuthProvider';
 import { ChipGroup } from '../../components/ChipGroup';
@@ -16,18 +16,30 @@ function formatElapsed(seconds: number) {
   return `${m}:${s.toString().padStart(2, '0')}`;
 }
 
-export function WalkLogForm({ dogId, onSuccess }: { dogId: string; onSuccess: () => void }) {
+export function WalkLogForm({
+  dogId,
+  log,
+  onSuccess,
+}: {
+  dogId: string;
+  log?: WalkLog;
+  onSuccess: () => void;
+}) {
   const { session } = useAuth();
   const queryClient = useQueryClient();
-  const [occurredAt, setOccurredAt] = useState(new Date());
-  const [notes, setNotes] = useState('');
-  const [source, setSource] = useState<(typeof SOURCES)[number]>('timer');
+  const [occurredAt, setOccurredAt] = useState(log ? new Date(log.occurred_at) : new Date());
+  const [notes, setNotes] = useState(log?.notes ?? '');
+  // Editing an existing walk always uses the manual/duration field — there's
+  // no live timer context to resume for a walk that already happened.
+  const [source, setSource] = useState<(typeof SOURCES)[number]>(log ? 'manual' : 'timer');
 
   const [timerStart, setTimerStart] = useState<Date | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const [manualMinutes, setManualMinutes] = useState('');
+  const [manualMinutes, setManualMinutes] = useState(
+    log?.duration_seconds ? String(log.duration_seconds / 60) : ''
+  );
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
 
   useEffect(() => {
@@ -54,7 +66,7 @@ export function WalkLogForm({ dogId, onSuccess }: { dogId: string; onSuccess: ()
     mutationFn: () => {
       const startTime = source === 'timer' && timerStart ? timerStart : occurredAt;
       return insertWalkLog(supabase, {
-        id: Crypto.randomUUID(),
+        id: log?.id ?? Crypto.randomUUID(),
         dog_id: dogId,
         logged_by_user_id: session!.user.id,
         occurred_at: occurredAt.toISOString(),
@@ -73,9 +85,17 @@ export function WalkLogForm({ dogId, onSuccess }: { dogId: string; onSuccess: ()
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: () => softDeleteLog(supabase, 'walk', log!.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['timeline', dogId] });
+      onSuccess();
+    },
+  });
+
   return (
     <LogFormShell
-      title="Log a walk"
+      title={log ? 'Edit walk entry' : 'Log a walk'}
       occurredAt={occurredAt}
       onChangeOccurredAt={setOccurredAt}
       notes={notes}
@@ -84,8 +104,11 @@ export function WalkLogForm({ dogId, onSuccess }: { dogId: string; onSuccess: ()
         setAttemptedSubmit(true);
         if (durationSeconds && durationSeconds > 0) mutation.mutate();
       }}
+      submitLabel={log ? 'Save changes' : 'Save'}
       isSubmitting={mutation.isPending}
       error={mutation.isError ? (mutation.error as Error).message : null}
+      onDelete={log ? () => deleteMutation.mutate() : undefined}
+      isDeleting={deleteMutation.isPending}
     >
       <ChipGroup label="How" options={SOURCES} value={source} onChange={setSource} />
 

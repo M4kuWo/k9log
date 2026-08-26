@@ -16,6 +16,7 @@ import {
   type VaccineLog,
   type VetAppointment,
   type TimelineEntry,
+  type LogKind,
 } from '../types';
 
 // `id` is required and must be generated on the device (see
@@ -57,6 +58,21 @@ export const insertVaccineLog = (client: SupabaseClient, input: NewLog<VaccineLo
 
 export const insertVetAppointment = (client: SupabaseClient, input: NewLog<VetAppointment>) =>
   insert(client, LOG_TABLES.vet_appointment, input, VetAppointmentSchema);
+
+// Soft delete (see ARCHITECTURE.md §2's deleted_at column) rather than a
+// hard DELETE, so a mistaken removal is still recoverable and offline
+// deletes replay the same way other mutations do.
+export async function softDeleteLog(
+  client: SupabaseClient,
+  kind: LogKind,
+  id: string
+): Promise<void> {
+  const { error } = await client
+    .from(LOG_TABLES[kind])
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', id);
+  if (error) throw error;
+}
 
 // Application-level merge across log tables — see ARCHITECTURE.md §2.
 // Fine at household-pet scale; revisit with a UNION ALL view if this ever

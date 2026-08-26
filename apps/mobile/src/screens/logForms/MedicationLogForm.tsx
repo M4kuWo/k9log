@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, Text, Switch } from 'react-native';
 import * as Crypto from 'expo-crypto';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { insertMedicationLog } from '@k9log/shared';
+import { insertMedicationLog, softDeleteLog, type MedicationLog } from '@k9log/shared';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../auth/AuthProvider';
 import { TextField } from '../../components/TextField';
@@ -10,20 +10,22 @@ import { LogFormShell } from './LogFormShell';
 
 export function MedicationLogForm({
   dogId,
+  log,
   onSuccess,
 }: {
   dogId: string;
+  log?: MedicationLog;
   onSuccess: () => void;
 }) {
   const { session } = useAuth();
   const queryClient = useQueryClient();
-  const [occurredAt, setOccurredAt] = useState(new Date());
-  const [notes, setNotes] = useState('');
-  const [medicationName, setMedicationName] = useState('');
-  const [dose, setDose] = useState('');
-  const [unit, setUnit] = useState('');
-  const [isRecurring, setIsRecurring] = useState(false);
-  const [recurrenceRule, setRecurrenceRule] = useState('');
+  const [occurredAt, setOccurredAt] = useState(log ? new Date(log.occurred_at) : new Date());
+  const [notes, setNotes] = useState(log?.notes ?? '');
+  const [medicationName, setMedicationName] = useState(log?.medication_name ?? '');
+  const [dose, setDose] = useState(log?.dose ?? '');
+  const [unit, setUnit] = useState(log?.unit ?? '');
+  const [isRecurring, setIsRecurring] = useState(log?.is_recurring ?? false);
+  const [recurrenceRule, setRecurrenceRule] = useState(log?.recurrence_rule ?? '');
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
   const medicationNameError =
     attemptedSubmit && !medicationName.trim() ? 'Please fill this in' : undefined;
@@ -31,7 +33,7 @@ export function MedicationLogForm({
   const mutation = useMutation({
     mutationFn: () =>
       insertMedicationLog(supabase, {
-        id: Crypto.randomUUID(),
+        id: log?.id ?? Crypto.randomUUID(),
         dog_id: dogId,
         logged_by_user_id: session!.user.id,
         occurred_at: occurredAt.toISOString(),
@@ -48,9 +50,17 @@ export function MedicationLogForm({
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: () => softDeleteLog(supabase, 'medication', log!.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['timeline', dogId] });
+      onSuccess();
+    },
+  });
+
   return (
     <LogFormShell
-      title="Log medication"
+      title={log ? 'Edit medication entry' : 'Log medication'}
       occurredAt={occurredAt}
       onChangeOccurredAt={setOccurredAt}
       notes={notes}
@@ -59,8 +69,11 @@ export function MedicationLogForm({
         setAttemptedSubmit(true);
         if (medicationName.trim()) mutation.mutate();
       }}
+      submitLabel={log ? 'Save changes' : 'Save'}
       isSubmitting={mutation.isPending}
       error={mutation.isError ? (mutation.error as Error).message : null}
+      onDelete={log ? () => deleteMutation.mutate() : undefined}
+      isDeleting={deleteMutation.isPending}
     >
       <TextField
         label="Medication"

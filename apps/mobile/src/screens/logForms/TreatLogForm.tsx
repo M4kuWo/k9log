@@ -1,26 +1,34 @@
 import { useState } from 'react';
 import * as Crypto from 'expo-crypto';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { insertTreatLog } from '@k9log/shared';
+import { insertTreatLog, softDeleteLog, type TreatLog } from '@k9log/shared';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../auth/AuthProvider';
 import { TextField } from '../../components/TextField';
 import { LogFormShell } from './LogFormShell';
 
-export function TreatLogForm({ dogId, onSuccess }: { dogId: string; onSuccess: () => void }) {
+export function TreatLogForm({
+  dogId,
+  log,
+  onSuccess,
+}: {
+  dogId: string;
+  log?: TreatLog;
+  onSuccess: () => void;
+}) {
   const { session } = useAuth();
   const queryClient = useQueryClient();
-  const [occurredAt, setOccurredAt] = useState(new Date());
-  const [notes, setNotes] = useState('');
-  const [treatName, setTreatName] = useState('');
-  const [quantity, setQuantity] = useState('');
+  const [occurredAt, setOccurredAt] = useState(log ? new Date(log.occurred_at) : new Date());
+  const [notes, setNotes] = useState(log?.notes ?? '');
+  const [treatName, setTreatName] = useState(log?.treat_name ?? '');
+  const [quantity, setQuantity] = useState(log?.quantity != null ? String(log.quantity) : '');
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
   const treatNameError = attemptedSubmit && !treatName.trim() ? 'Please fill this in' : undefined;
 
   const mutation = useMutation({
     mutationFn: () =>
       insertTreatLog(supabase, {
-        id: Crypto.randomUUID(),
+        id: log?.id ?? Crypto.randomUUID(),
         dog_id: dogId,
         logged_by_user_id: session!.user.id,
         occurred_at: occurredAt.toISOString(),
@@ -34,9 +42,17 @@ export function TreatLogForm({ dogId, onSuccess }: { dogId: string; onSuccess: (
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: () => softDeleteLog(supabase, 'treat', log!.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['timeline', dogId] });
+      onSuccess();
+    },
+  });
+
   return (
     <LogFormShell
-      title="Log a treat"
+      title={log ? 'Edit treat entry' : 'Log a treat'}
       occurredAt={occurredAt}
       onChangeOccurredAt={setOccurredAt}
       notes={notes}
@@ -45,8 +61,11 @@ export function TreatLogForm({ dogId, onSuccess }: { dogId: string; onSuccess: (
         setAttemptedSubmit(true);
         if (treatName.trim()) mutation.mutate();
       }}
+      submitLabel={log ? 'Save changes' : 'Save'}
       isSubmitting={mutation.isPending}
       error={mutation.isError ? (mutation.error as Error).message : null}
+      onDelete={log ? () => deleteMutation.mutate() : undefined}
+      isDeleting={deleteMutation.isPending}
     >
       <TextField
         label="Treat"

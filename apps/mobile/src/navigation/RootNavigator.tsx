@@ -50,7 +50,11 @@ function HouseholdGate({ householdId }: { householdId: string }) {
             ),
           })}
         />
-        <Stack.Screen name="AddLog" component={AddLogScreen} options={{ title: 'New entry' }} />
+        <Stack.Screen
+          name="AddLog"
+          component={AddLogScreen}
+          options={({ route }) => ({ title: route.params.log ? 'Edit entry' : 'New entry' })}
+        />
         <Stack.Screen name="AddDog" options={{ title: 'Add a dog' }}>
           {({ navigation }) => (
             <DogSetupScreen householdId={householdId} onSuccess={() => navigation.goBack()} />

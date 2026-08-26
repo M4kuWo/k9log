@@ -93,13 +93,22 @@ export function TimelineScreen({ route, navigation }: Props) {
             </Text>
           }
           renderItem={({ item }) => (
-            <View className="border border-neutral-200 rounded-lg px-4 py-3">
+            <Pressable
+              className="border border-neutral-200 rounded-lg px-4 py-3"
+              onPress={() =>
+                navigation.navigate('AddLog', {
+                  dogId: item.log.dog_id,
+                  kind: item.kind,
+                  log: item.log,
+                })
+              }
+            >
               <Text className="text-base font-medium text-neutral-900">{entryTitle(item)}</Text>
               <Text className="text-neutral-400 text-sm mt-1">
                 {formatWhen(item.log.occurred_at)}
                 {item.log.notes ? ` · ${item.log.notes}` : ''}
               </Text>
-            </View>
+            </Pressable>
           )}
         />
       )}
