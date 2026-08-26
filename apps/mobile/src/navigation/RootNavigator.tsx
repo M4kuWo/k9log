@@ -12,6 +12,7 @@ import { TimelineScreen } from '../screens/TimelineScreen';
 import { AddLogScreen } from '../screens/AddLogScreen';
 import { ReportsScreen } from '../screens/ReportsScreen';
 import { AvatarPickerScreen } from '../screens/AvatarPickerScreen';
+import { CategoryDetailScreen } from '../screens/CategoryDetailScreen';
 import type { MainStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
@@ -77,6 +78,24 @@ function HouseholdGate({ householdId }: { householdId: string }) {
               {...route.params}
               householdId={householdId}
               onDone={() => navigation.goBack()}
+            />
+          )}
+        </Stack.Screen>
+        <Stack.Screen
+          name="CategoryDetail"
+          options={({ route }) => ({ title: route.params.title })}
+        >
+          {({ route, navigation }) => (
+            <CategoryDetailScreen
+              dogId={route.params.dogId}
+              kind={route.params.kind}
+              onSelectEntry={(entry) =>
+                navigation.navigate('AddLog', {
+                  dogId: entry.log.dog_id,
+                  kind: entry.kind,
+                  log: entry.log,
+                })
+              }
             />
           )}
         </Stack.Screen>

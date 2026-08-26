@@ -1,16 +1,23 @@
 import { useEffect, useState } from 'react';
-import { View, Text, FlatList, Pressable, Modal, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, Pressable, Modal, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { listDogs, getTimeline, type LogKind, type TimelineEntry } from '@k9log/shared';
+import { listDogs, getLogsSince, buildDashboardSummary, type LogKind } from '@k9log/shared';
 import { supabase } from '../lib/supabase';
 import { DogSelector } from '../components/DogSelector';
+import { LogIcon } from '../components/LogIcon';
 import { useWalkTimer } from '../walkTimer/WalkTimerProvider';
 import { formatElapsed } from '../walkTimer/format';
-import { LOG_KIND_ICONS, LOG_KIND_COLORS } from '../constants/logIcons';
-import { PALETTE, PALETTE_SOFT } from '../constants/palette';
+import {
+  WalkCard,
+  FoodCard,
+  TreatCard,
+  MedicationCard,
+  BehaviorCard,
+  VetCard,
+} from './dashboard/DashboardCards';
 import type { MainStackParamList } from '../navigation/types';
 
 type Props = NativeStackScreenProps<MainStackParamList, 'Timeline'>;
@@ -25,38 +32,7 @@ const LOG_KIND_LABELS: Record<LogKind, string> = {
   vet_appointment: 'Vet appointment',
 };
 
-function LogIcon({ kind, size = 20 }: { kind: LogKind; size?: number }) {
-  const color = LOG_KIND_COLORS[kind];
-  return (
-    <View
-      className="w-9 h-9 rounded-full items-center justify-center"
-      style={{ backgroundColor: PALETTE_SOFT[color] }}
-    >
-      <Ionicons name={LOG_KIND_ICONS[kind]} size={size} color={PALETTE[color]} />
-    </View>
-  );
-}
-
-function entryTitle(entry: TimelineEntry): string {
-  switch (entry.kind) {
-    case 'food':
-      return `Fed ${entry.log.food_name}`;
-    case 'walk':
-      return entry.log.duration_seconds
-        ? `Walked ${Math.round(entry.log.duration_seconds / 60)} min`
-        : 'Walk';
-    case 'treat':
-      return `Treat: ${entry.log.treat_name}`;
-    case 'vomit':
-      return `Vomit (${entry.log.consistency ?? 'unspecified'})`;
-    case 'medication':
-      return `Medication: ${entry.log.medication_name}`;
-    case 'vaccine':
-      return `Vaccine: ${entry.log.vaccine_name}`;
-    case 'vet_appointment':
-      return `Vet: ${entry.log.reason ?? entry.log.status}`;
-  }
-}
+const EPOCH = new Date(0).toISOString();
 
 function useElapsedSeconds(startedAtISO?: string): number {
   const [elapsed, setElapsed] = useState(0);
@@ -73,19 +49,10 @@ function useElapsedSeconds(startedAtISO?: string): number {
   return elapsed;
 }
 
-function formatWhen(iso: string): string {
-  const date = new Date(iso);
-  const diffMinutes = Math.round((Date.now() - date.getTime()) / 60000);
-  if (diffMinutes < 1) return 'just now';
-  if (diffMinutes < 60) return `${diffMinutes}m ago`;
-  const diffHours = Math.round(diffMinutes / 60);
-  if (diffHours < 24) return `${diffHours}h ago`;
-  return date.toLocaleDateString();
-}
-
 export function TimelineScreen({ route, navigation }: Props) {
   const { householdId } = route.params;
   const [pickerVisible, setPickerVisible] = useState(false);
+  const [vetExpanded, setVetExpanded] = useState(false);
 
   const dogsQuery = useQuery({
     queryKey: ['dogs', householdId],
@@ -95,15 +62,20 @@ export function TimelineScreen({ route, navigation }: Props) {
   const dogs = dogsQuery.data ?? [];
   const activeDogId = selectedDogId ?? dogs[0]?.id ?? null;
 
-  const timelineQuery = useQuery({
+  const logsQuery = useQuery({
     queryKey: ['timeline', activeDogId],
-    queryFn: () => getTimeline(supabase, activeDogId!),
+    queryFn: () => getLogsSince(supabase, activeDogId!, EPOCH),
     enabled: !!activeDogId,
   });
+  const summary = logsQuery.data ? buildDashboardSummary(logsQuery.data) : null;
 
   const { activeTimers } = useWalkTimer();
   const activeWalkStartedAt = activeDogId ? activeTimers[activeDogId] : undefined;
   const activeWalkElapsed = useElapsedSeconds(activeWalkStartedAt);
+
+  function openCategory(kind: LogKind, title: string) {
+    if (activeDogId) navigation.navigate('CategoryDetail', { dogId: activeDogId, kind, title });
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-stone-50">
@@ -137,42 +109,29 @@ export function TimelineScreen({ route, navigation }: Props) {
         </Pressable>
       )}
 
-      {timelineQuery.isLoading ? (
+      {logsQuery.isLoading || !summary ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator color="#E2706A" />
         </View>
       ) : (
-        <FlatList
-          data={timelineQuery.data ?? []}
-          keyExtractor={(item) => item.log.id}
-          contentContainerClassName="px-4 gap-2 py-2"
-          ListEmptyComponent={
-            <Text className="text-stone-400 text-center mt-12">
-              No entries yet — tap + to log something.
-            </Text>
-          }
-          renderItem={({ item }) => (
-            <Pressable
-              className="bg-white border border-stone-200 rounded-xl px-4 py-3 shadow-sm flex-row items-center gap-3"
-              onPress={() =>
-                navigation.navigate('AddLog', {
-                  dogId: item.log.dog_id,
-                  kind: item.kind,
-                  log: item.log,
-                })
-              }
-            >
-              <LogIcon kind={item.kind} />
-              <View className="flex-1">
-                <Text className="text-base font-medium text-stone-900">{entryTitle(item)}</Text>
-                <Text className="text-stone-400 text-sm mt-0.5">
-                  {formatWhen(item.log.occurred_at)}
-                  {item.log.notes ? ` · ${item.log.notes}` : ''}
-                </Text>
-              </View>
-            </Pressable>
-          )}
-        />
+        <ScrollView contentContainerClassName="px-4 gap-2 py-2">
+          <WalkCard summary={summary.walk} onPress={() => openCategory('walk', 'Walks')} />
+          <FoodCard summary={summary.food} onPress={() => openCategory('food', 'Food')} />
+          <TreatCard summary={summary.treat} onPress={() => openCategory('treat', 'Treats')} />
+          <MedicationCard
+            summary={summary.medication}
+            onPress={() => openCategory('medication', 'Medication')}
+          />
+          <BehaviorCard
+            summary={summary.behavior}
+            onPress={() => openCategory('vomit', 'Behavior')}
+          />
+          <VetCard
+            summary={summary.vet}
+            expanded={vetExpanded}
+            onToggle={() => setVetExpanded((v) => !v)}
+          />
+        </ScrollView>
       )}
 
       <Pressable

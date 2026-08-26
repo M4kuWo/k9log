@@ -14,4 +14,5 @@ export type MainStackParamList = {
     currentPhotoUrl: string | null;
     fallbackColor: PaletteColor;
   };
+  CategoryDetail: { dogId: string; kind: LogKind; title: string };
 };

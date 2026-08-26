@@ -5,3 +5,4 @@ export * from './api/dogs';
 export * from './api/logs';
 export * from './api/reports';
 export * from './api/storage';
+export * from './api/dashboard';
