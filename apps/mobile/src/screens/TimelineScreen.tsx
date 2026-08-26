@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { View, Text, ScrollView, Pressable, Modal, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { listDogs, getLogsSince, buildDashboardSummary, type LogKind } from '@k9log/shared';
 import { supabase } from '../lib/supabase';
 import { DogSelector } from '../components/DogSelector';
 import { LogIcon } from '../components/LogIcon';
+import { LogGlyph } from '../components/LogGlyph';
 import { useWalkTimer } from '../walkTimer/WalkTimerProvider';
 import { formatElapsed } from '../walkTimer/format';
 import {
@@ -77,6 +77,10 @@ export function TimelineScreen({ route, navigation }: Props) {
     if (activeDogId) navigation.navigate('CategoryDetail', { dogId: activeDogId, kind, title });
   }
 
+  function quickAdd(kind: LogKind) {
+    if (activeDogId) navigation.navigate('AddLog', { dogId: activeDogId, kind });
+  }
+
   return (
     <SafeAreaView className="flex-1 bg-stone-50">
       <DogSelector
@@ -100,7 +104,7 @@ export function TimelineScreen({ route, navigation }: Props) {
           onPress={() => navigation.navigate('AddLog', { dogId: activeDogId, kind: 'walk' })}
         >
           <View className="flex-row items-center gap-2">
-            <Ionicons name="walk-outline" size={18} color="white" />
+            <LogGlyph kind="walk" size={18} color="white" />
             <Text className="text-white font-medium">Walk in progress — tap to review</Text>
           </View>
           <Text className="text-white font-mono text-base">
@@ -114,22 +118,37 @@ export function TimelineScreen({ route, navigation }: Props) {
           <ActivityIndicator color="#E2706A" />
         </View>
       ) : (
-        <ScrollView contentContainerClassName="px-4 gap-2 py-2">
-          <WalkCard summary={summary.walk} onPress={() => openCategory('walk', 'Walks')} />
-          <FoodCard summary={summary.food} onPress={() => openCategory('food', 'Food')} />
-          <TreatCard summary={summary.treat} onPress={() => openCategory('treat', 'Treats')} />
+        <ScrollView contentContainerClassName="px-4 gap-3 py-2">
+          <WalkCard
+            summary={summary.walk}
+            onPress={() => openCategory('walk', 'Walks')}
+            onQuickAdd={() => quickAdd('walk')}
+          />
+          <FoodCard
+            summary={summary.food}
+            onPress={() => openCategory('food', 'Food')}
+            onQuickAdd={() => quickAdd('food')}
+          />
+          <TreatCard
+            summary={summary.treat}
+            onPress={() => openCategory('treat', 'Treats')}
+            onQuickAdd={() => quickAdd('treat')}
+          />
           <MedicationCard
             summary={summary.medication}
             onPress={() => openCategory('medication', 'Medication')}
+            onQuickAdd={() => quickAdd('medication')}
           />
           <BehaviorCard
             summary={summary.behavior}
             onPress={() => openCategory('vomit', 'Behavior')}
+            onQuickAdd={() => quickAdd('vomit')}
           />
           <VetCard
             summary={summary.vet}
             expanded={vetExpanded}
             onToggle={() => setVetExpanded((v) => !v)}
+            onQuickAdd={() => quickAdd('vet_appointment')}
           />
         </ScrollView>
       )}

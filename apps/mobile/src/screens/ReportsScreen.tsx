@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { View, Text, Pressable, ActivityIndicator, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import {
   listDogs,
@@ -15,7 +14,8 @@ import {
 import { supabase } from '../lib/supabase';
 import { DogSelector } from '../components/DogSelector';
 import { BarChart } from '../components/BarChart';
-import { LOG_KIND_ICONS, LOG_KIND_COLORS } from '../constants/logIcons';
+import { LogGlyph } from '../components/LogGlyph';
+import { LOG_KIND_COLORS } from '../constants/logIcons';
 import { PALETTE, PALETTE_SOFT } from '../constants/palette';
 
 const RANGE_LABELS: Record<ReportRange, string> = {
@@ -57,7 +57,7 @@ function ReportCard({
         className="w-9 h-9 rounded-full items-center justify-center"
         style={{ backgroundColor: PALETTE_SOFT[color] }}
       >
-        <Ionicons name={LOG_KIND_ICONS[kind]} size={18} color={PALETTE[color]} />
+        <LogGlyph kind={kind} size={18} color={PALETTE[color]} />
       </View>
       <Text className="flex-1 text-base font-medium text-stone-900">{title}</Text>
       <View className="items-end">
