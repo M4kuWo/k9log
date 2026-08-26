@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { View, Text, TextInput } from 'react-native';
 import * as Crypto from 'expo-crypto';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { insertVetAppointment } from '@k9log/shared';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../auth/AuthProvider';
 import { ChipGroup } from '../../components/ChipGroup';
+import { TextField } from '../../components/TextField';
 import { LogFormShell } from './LogFormShell';
 
 const STATUSES = ['upcoming', 'completed', 'cancelled'] as const;
@@ -59,46 +59,29 @@ export function VetAppointmentForm({
       onSubmit={() => mutation.mutate()}
       isSubmitting={mutation.isPending}
       error={mutation.isError ? (mutation.error as Error).message : null}
-      canSubmit
     >
       <ChipGroup label="Status" options={STATUSES} value={status} onChange={setStatus} />
-      <View className="gap-2">
-        <Text className="text-neutral-500 text-sm">Reason</Text>
-        <TextInput
-          className="border border-neutral-300 rounded-lg px-4 py-3 text-base"
-          placeholder="e.g. annual checkup"
-          value={reason}
-          onChangeText={setReason}
-        />
-      </View>
-      <View className="gap-2">
-        <Text className="text-neutral-500 text-sm">Clinic (optional)</Text>
-        <TextInput
-          className="border border-neutral-300 rounded-lg px-4 py-3 text-base"
-          value={clinicName}
-          onChangeText={setClinicName}
-        />
-      </View>
+      <TextField
+        label="Reason (optional)"
+        placeholder="e.g. annual checkup"
+        value={reason}
+        onChangeText={setReason}
+      />
+      <TextField label="Clinic (optional)" value={clinicName} onChangeText={setClinicName} />
       {status === 'completed' && (
         <>
-          <View className="gap-2">
-            <Text className="text-neutral-500 text-sm">Summary (optional)</Text>
-            <TextInput
-              className="border border-neutral-300 rounded-lg px-4 py-3 text-base"
-              value={summaryNotes}
-              onChangeText={setSummaryNotes}
-              multiline
-            />
-          </View>
-          <View className="gap-2">
-            <Text className="text-neutral-500 text-sm">Cost (optional)</Text>
-            <TextInput
-              className="border border-neutral-300 rounded-lg px-4 py-3 text-base"
-              keyboardType="decimal-pad"
-              value={cost}
-              onChangeText={setCost}
-            />
-          </View>
+          <TextField
+            label="Summary (optional)"
+            value={summaryNotes}
+            onChangeText={setSummaryNotes}
+            multiline
+          />
+          <TextField
+            label="Cost (optional)"
+            keyboardType="decimal-pad"
+            value={cost}
+            onChangeText={setCost}
+          />
         </>
       )}
     </LogFormShell>

@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { View, Text, TextInput } from 'react-native';
 import * as Crypto from 'expo-crypto';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { insertVaccineLog } from '@k9log/shared';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../auth/AuthProvider';
 import { DatePickerField } from '../../components/DatePickerField';
+import { TextField } from '../../components/TextField';
 import { LogFormShell } from './LogFormShell';
 
 const toDateOnly = (date: Date) => date.toISOString().slice(0, 10);
@@ -19,6 +19,8 @@ export function VaccineLogForm({ dogId, onSuccess }: { dogId: string; onSuccess:
   const [administeredDate, setAdministeredDate] = useState<Date>(new Date());
   const [nextDueDate, setNextDueDate] = useState<Date | null>(null);
   const [clinicName, setClinicName] = useState('');
+  const [attemptedSubmit, setAttemptedSubmit] = useState(false);
+  const vaccineNameError = attemptedSubmit && !vaccineName.trim() ? 'Please fill this in' : undefined;
 
   const mutation = useMutation({
     mutationFn: () =>
@@ -47,19 +49,19 @@ export function VaccineLogForm({ dogId, onSuccess }: { dogId: string; onSuccess:
       onChangeOccurredAt={setOccurredAt}
       notes={notes}
       onChangeNotes={setNotes}
-      onSubmit={() => mutation.mutate()}
+      onSubmit={() => {
+        setAttemptedSubmit(true);
+        if (vaccineName.trim()) mutation.mutate();
+      }}
       isSubmitting={mutation.isPending}
       error={mutation.isError ? (mutation.error as Error).message : null}
-      canSubmit={vaccineName.trim().length > 0}
     >
-      <View className="gap-2">
-        <Text className="text-neutral-500 text-sm">Vaccine</Text>
-        <TextInput
-          className="border border-neutral-300 rounded-lg px-4 py-3 text-base"
-          value={vaccineName}
-          onChangeText={setVaccineName}
-        />
-      </View>
+      <TextField
+        label="Vaccine"
+        value={vaccineName}
+        onChangeText={setVaccineName}
+        error={vaccineNameError}
+      />
       <DatePickerField
         label="Administered on"
         value={administeredDate}
@@ -71,14 +73,7 @@ export function VaccineLogForm({ dogId, onSuccess }: { dogId: string; onSuccess:
         onChange={setNextDueDate}
         clearable
       />
-      <View className="gap-2">
-        <Text className="text-neutral-500 text-sm">Clinic (optional)</Text>
-        <TextInput
-          className="border border-neutral-300 rounded-lg px-4 py-3 text-base"
-          value={clinicName}
-          onChangeText={setClinicName}
-        />
-      </View>
+      <TextField label="Clinic (optional)" value={clinicName} onChangeText={setClinicName} />
     </LogFormShell>
   );
 }

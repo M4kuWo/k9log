@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { View, Text, TextInput } from 'react-native';
 import * as Crypto from 'expo-crypto';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { insertFoodLog } from '@k9log/shared';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../auth/AuthProvider';
 import { ChipGroup } from '../../components/ChipGroup';
+import { TextField } from '../../components/TextField';
 import { LogFormShell } from './LogFormShell';
 
 const FOOD_TYPES = ['dry', 'wet', 'raw', 'other'] as const;
@@ -29,7 +29,7 @@ export function FoodLogForm({ dogId, onSuccess }: { dogId: string; onSuccess: ()
         logged_by_user_id: session!.user.id,
         occurred_at: occurredAt.toISOString(),
         notes: notes.trim() || null,
-        food_name: foodName.trim(),
+        food_name: foodName.trim() || 'Unspecified',
         food_type: foodType,
         amount: amount ? Number(amount) : null,
         unit,
@@ -50,30 +50,23 @@ export function FoodLogForm({ dogId, onSuccess }: { dogId: string; onSuccess: ()
       onSubmit={() => mutation.mutate()}
       isSubmitting={mutation.isPending}
       error={mutation.isError ? (mutation.error as Error).message : null}
-      canSubmit={foodName.trim().length > 0}
     >
-      <View className="gap-2">
-        <Text className="text-neutral-500 text-sm">Food</Text>
-        <TextInput
-          className="border border-neutral-300 rounded-lg px-4 py-3 text-base"
-          placeholder="e.g. Kibble brand"
-          value={foodName}
-          onChangeText={setFoodName}
-        />
-      </View>
+      <TextField
+        label="Food (optional)"
+        placeholder="e.g. Kibble brand — leave blank for unspecified"
+        value={foodName}
+        onChangeText={setFoodName}
+      />
 
       <ChipGroup label="Type" options={FOOD_TYPES} value={foodType} onChange={setFoodType} />
 
-      <View className="gap-2">
-        <Text className="text-neutral-500 text-sm">Amount</Text>
-        <TextInput
-          className="border border-neutral-300 rounded-lg px-4 py-3 text-base"
-          placeholder="e.g. 1.5"
-          keyboardType="decimal-pad"
-          value={amount}
-          onChangeText={setAmount}
-        />
-      </View>
+      <TextField
+        label="Amount (optional)"
+        placeholder="e.g. 1.5"
+        keyboardType="decimal-pad"
+        value={amount}
+        onChangeText={setAmount}
+      />
 
       <ChipGroup label="Unit" options={UNITS} value={unit} onChange={setUnit} />
     </LogFormShell>

@@ -12,7 +12,6 @@ export function LogFormShell({
   onSubmit,
   isSubmitting,
   error,
-  canSubmit,
   children,
 }: {
   title: string;
@@ -23,7 +22,6 @@ export function LogFormShell({
   onSubmit: () => void;
   isSubmitting: boolean;
   error: string | null;
-  canSubmit: boolean;
   children: ReactNode;
 }) {
   const [showPicker, setShowPicker] = useState(false);
@@ -67,8 +65,12 @@ export function LogFormShell({
         {error && <Text className="text-red-600">{error}</Text>}
 
         <Pressable
-          className="bg-neutral-900 rounded-lg py-3 items-center"
-          disabled={!canSubmit || isSubmitting}
+          className={
+            isSubmitting
+              ? 'bg-neutral-400 rounded-lg py-3 items-center'
+              : 'bg-neutral-900 rounded-lg py-3 items-center'
+          }
+          disabled={isSubmitting}
           onPress={onSubmit}
         >
           {isSubmitting ? (

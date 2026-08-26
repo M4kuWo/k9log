@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { View, Text, TextInput, Switch } from 'react-native';
+import { View, Text, Switch } from 'react-native';
 import * as Crypto from 'expo-crypto';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { insertMedicationLog } from '@k9log/shared';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../auth/AuthProvider';
+import { TextField } from '../../components/TextField';
 import { LogFormShell } from './LogFormShell';
 
 export function MedicationLogForm({
@@ -23,6 +24,9 @@ export function MedicationLogForm({
   const [unit, setUnit] = useState('');
   const [isRecurring, setIsRecurring] = useState(false);
   const [recurrenceRule, setRecurrenceRule] = useState('');
+  const [attemptedSubmit, setAttemptedSubmit] = useState(false);
+  const medicationNameError =
+    attemptedSubmit && !medicationName.trim() ? 'Please fill this in' : undefined;
 
   const mutation = useMutation({
     mutationFn: () =>
@@ -51,32 +55,26 @@ export function MedicationLogForm({
       onChangeOccurredAt={setOccurredAt}
       notes={notes}
       onChangeNotes={setNotes}
-      onSubmit={() => mutation.mutate()}
+      onSubmit={() => {
+        setAttemptedSubmit(true);
+        if (medicationName.trim()) mutation.mutate();
+      }}
       isSubmitting={mutation.isPending}
       error={mutation.isError ? (mutation.error as Error).message : null}
-      canSubmit={medicationName.trim().length > 0}
     >
-      <View className="gap-2">
-        <Text className="text-neutral-500 text-sm">Medication</Text>
-        <TextInput
-          className="border border-neutral-300 rounded-lg px-4 py-3 text-base"
-          value={medicationName}
-          onChangeText={setMedicationName}
-        />
-      </View>
+      <TextField
+        label="Medication"
+        value={medicationName}
+        onChangeText={setMedicationName}
+        error={medicationNameError}
+      />
       <View className="flex-row gap-3">
-        <View className="flex-1 gap-2">
-          <Text className="text-neutral-500 text-sm">Dose</Text>
-          <TextInput
-            className="border border-neutral-300 rounded-lg px-4 py-3 text-base"
-            value={dose}
-            onChangeText={setDose}
-          />
+        <View className="flex-1">
+          <TextField label="Dose" value={dose} onChangeText={setDose} />
         </View>
-        <View className="flex-1 gap-2">
-          <Text className="text-neutral-500 text-sm">Unit</Text>
-          <TextInput
-            className="border border-neutral-300 rounded-lg px-4 py-3 text-base"
+        <View className="flex-1">
+          <TextField
+            label="Unit"
             placeholder="mg, tablet..."
             value={unit}
             onChangeText={setUnit}
@@ -88,14 +86,11 @@ export function MedicationLogForm({
         <Switch value={isRecurring} onValueChange={setIsRecurring} />
       </View>
       {isRecurring && (
-        <View className="gap-2">
-          <Text className="text-neutral-500 text-sm">Recurrence (e.g. daily, weekly)</Text>
-          <TextInput
-            className="border border-neutral-300 rounded-lg px-4 py-3 text-base"
-            value={recurrenceRule}
-            onChangeText={setRecurrenceRule}
-          />
-        </View>
+        <TextField
+          label="Recurrence (e.g. daily, weekly)"
+          value={recurrenceRule}
+          onChangeText={setRecurrenceRule}
+        />
       )}
     </LogFormShell>
   );

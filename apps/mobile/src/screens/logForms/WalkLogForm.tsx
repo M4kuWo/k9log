@@ -28,6 +28,7 @@ export function WalkLogForm({ dogId, onSuccess }: { dogId: string; onSuccess: ()
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const [manualMinutes, setManualMinutes] = useState('');
+  const [attemptedSubmit, setAttemptedSubmit] = useState(false);
 
   useEffect(() => {
     if (timerStart) {
@@ -42,6 +43,12 @@ export function WalkLogForm({ dogId, onSuccess }: { dogId: string; onSuccess: ()
 
   const durationSeconds =
     source === 'timer' ? elapsedSeconds : manualMinutes ? Math.round(Number(manualMinutes) * 60) : null;
+  const durationError =
+    attemptedSubmit && !(durationSeconds && durationSeconds > 0)
+      ? source === 'timer'
+        ? 'Start and stop the timer to log a duration'
+        : 'Please fill this in'
+      : undefined;
 
   const mutation = useMutation({
     mutationFn: () => {
@@ -73,10 +80,12 @@ export function WalkLogForm({ dogId, onSuccess }: { dogId: string; onSuccess: ()
       onChangeOccurredAt={setOccurredAt}
       notes={notes}
       onChangeNotes={setNotes}
-      onSubmit={() => mutation.mutate()}
+      onSubmit={() => {
+        setAttemptedSubmit(true);
+        if (durationSeconds && durationSeconds > 0) mutation.mutate();
+      }}
       isSubmitting={mutation.isPending}
       error={mutation.isError ? (mutation.error as Error).message : null}
-      canSubmit={!!durationSeconds && durationSeconds > 0}
     >
       <ChipGroup label="How" options={SOURCES} value={source} onChange={setSource} />
 
@@ -98,17 +107,23 @@ export function WalkLogForm({ dogId, onSuccess }: { dogId: string; onSuccess: ()
           >
             <Text className="text-white font-semibold">{timerStart ? 'Stop' : 'Start walk'}</Text>
           </Pressable>
+          {durationError && <Text className="text-red-600 text-sm">{durationError}</Text>}
         </View>
       ) : (
         <View className="gap-2">
           <Text className="text-neutral-500 text-sm">Duration (minutes)</Text>
           <TextInput
-            className="border border-neutral-300 rounded-lg px-4 py-3 text-base"
+            className={
+              durationError
+                ? 'border border-red-400 rounded-lg px-4 py-3 text-base'
+                : 'border border-neutral-300 rounded-lg px-4 py-3 text-base'
+            }
             placeholder="e.g. 30"
             keyboardType="decimal-pad"
             value={manualMinutes}
             onChangeText={setManualMinutes}
           />
+          {durationError && <Text className="text-red-600 text-sm">{durationError}</Text>}
         </View>
       )}
     </LogFormShell>

@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { View, Text, TextInput } from 'react-native';
 import * as Crypto from 'expo-crypto';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { insertTreatLog } from '@k9log/shared';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../auth/AuthProvider';
+import { TextField } from '../../components/TextField';
 import { LogFormShell } from './LogFormShell';
 
 export function TreatLogForm({ dogId, onSuccess }: { dogId: string; onSuccess: () => void }) {
@@ -14,6 +14,8 @@ export function TreatLogForm({ dogId, onSuccess }: { dogId: string; onSuccess: (
   const [notes, setNotes] = useState('');
   const [treatName, setTreatName] = useState('');
   const [quantity, setQuantity] = useState('');
+  const [attemptedSubmit, setAttemptedSubmit] = useState(false);
+  const treatNameError = attemptedSubmit && !treatName.trim() ? 'Please fill this in' : undefined;
 
   const mutation = useMutation({
     mutationFn: () =>
@@ -39,30 +41,27 @@ export function TreatLogForm({ dogId, onSuccess }: { dogId: string; onSuccess: (
       onChangeOccurredAt={setOccurredAt}
       notes={notes}
       onChangeNotes={setNotes}
-      onSubmit={() => mutation.mutate()}
+      onSubmit={() => {
+        setAttemptedSubmit(true);
+        if (treatName.trim()) mutation.mutate();
+      }}
       isSubmitting={mutation.isPending}
       error={mutation.isError ? (mutation.error as Error).message : null}
-      canSubmit={treatName.trim().length > 0}
     >
-      <View className="gap-2">
-        <Text className="text-neutral-500 text-sm">Treat</Text>
-        <TextInput
-          className="border border-neutral-300 rounded-lg px-4 py-3 text-base"
-          placeholder="e.g. Peanut butter biscuit"
-          value={treatName}
-          onChangeText={setTreatName}
-        />
-      </View>
-      <View className="gap-2">
-        <Text className="text-neutral-500 text-sm">Quantity (optional)</Text>
-        <TextInput
-          className="border border-neutral-300 rounded-lg px-4 py-3 text-base"
-          placeholder="e.g. 1"
-          keyboardType="decimal-pad"
-          value={quantity}
-          onChangeText={setQuantity}
-        />
-      </View>
+      <TextField
+        label="Treat"
+        placeholder="e.g. Peanut butter biscuit"
+        value={treatName}
+        onChangeText={setTreatName}
+        error={treatNameError}
+      />
+      <TextField
+        label="Quantity (optional)"
+        placeholder="e.g. 1"
+        keyboardType="decimal-pad"
+        value={quantity}
+        onChangeText={setQuantity}
+      />
     </LogFormShell>
   );
 }

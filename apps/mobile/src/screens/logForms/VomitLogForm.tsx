@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { View, Text, TextInput } from 'react-native';
 import * as Crypto from 'expo-crypto';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { insertVomitLog } from '@k9log/shared';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../auth/AuthProvider';
 import { ChipGroup } from '../../components/ChipGroup';
+import { TextField } from '../../components/TextField';
 import { LogFormShell } from './LogFormShell';
 
 const CONSISTENCIES = ['liquid', 'chunky', 'foamy', 'bile', 'other'] as const;
@@ -19,6 +19,8 @@ export function VomitLogForm({ dogId, onSuccess }: { dogId: string; onSuccess: (
   const [color, setColor] = useState('');
   const [texture, setTexture] = useState('');
   const [suspectedCause, setSuspectedCause] = useState('');
+  const [attemptedSubmit, setAttemptedSubmit] = useState(false);
+  const consistencyError = attemptedSubmit && !consistency ? 'Please select one' : undefined;
 
   const mutation = useMutation({
     mutationFn: () =>
@@ -47,42 +49,28 @@ export function VomitLogForm({ dogId, onSuccess }: { dogId: string; onSuccess: (
       onChangeOccurredAt={setOccurredAt}
       notes={notes}
       onChangeNotes={setNotes}
-      onSubmit={() => mutation.mutate()}
+      onSubmit={() => {
+        setAttemptedSubmit(true);
+        if (consistency) mutation.mutate();
+      }}
       isSubmitting={mutation.isPending}
       error={mutation.isError ? (mutation.error as Error).message : null}
-      canSubmit={consistency !== null}
     >
       <ChipGroup
         label="Consistency"
         options={CONSISTENCIES}
         value={consistency}
         onChange={setConsistency}
+        error={consistencyError}
       />
-      <View className="gap-2">
-        <Text className="text-neutral-500 text-sm">Color (optional)</Text>
-        <TextInput
-          className="border border-neutral-300 rounded-lg px-4 py-3 text-base"
-          value={color}
-          onChangeText={setColor}
-        />
-      </View>
-      <View className="gap-2">
-        <Text className="text-neutral-500 text-sm">Texture (optional)</Text>
-        <TextInput
-          className="border border-neutral-300 rounded-lg px-4 py-3 text-base"
-          value={texture}
-          onChangeText={setTexture}
-        />
-      </View>
-      <View className="gap-2">
-        <Text className="text-neutral-500 text-sm">Suspected cause (optional)</Text>
-        <TextInput
-          className="border border-neutral-300 rounded-lg px-4 py-3 text-base"
-          placeholder="e.g. ate grass"
-          value={suspectedCause}
-          onChangeText={setSuspectedCause}
-        />
-      </View>
+      <TextField label="Color (optional)" value={color} onChangeText={setColor} />
+      <TextField label="Texture (optional)" value={texture} onChangeText={setTexture} />
+      <TextField
+        label="Suspected cause (optional)"
+        placeholder="e.g. ate grass"
+        value={suspectedCause}
+        onChangeText={setSuspectedCause}
+      />
     </LogFormShell>
   );
 }
