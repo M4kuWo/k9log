@@ -49,7 +49,7 @@ export function SignInScreen() {
   return (
     <SafeAreaView className="flex-1 bg-stone-50">
       <View className="flex-1 justify-center px-6 gap-4">
-        <Text className="text-3xl font-bold text-orange-600 mb-2">K9log</Text>
+        <Text className="text-3xl font-bold text-[#E2706A] mb-2">K9log</Text>
         <Text className="text-stone-500 mb-4">
           {mode === 'sign-in' ? 'Sign in to your household' : 'Create your account'}
         </Text>
@@ -80,9 +80,8 @@ export function SignInScreen() {
         {error && <Text className="text-red-600">{error}</Text>}
 
         <Pressable
-          className={
-            canSubmit ? 'bg-orange-600 rounded-xl py-3 items-center' : 'bg-orange-300 rounded-xl py-3 items-center'
-          }
+          className="bg-[#E2706A] rounded-xl py-3 items-center"
+          style={!canSubmit ? { opacity: 0.5 } : undefined}
           onPress={handleSubmit}
           disabled={!canSubmit}
         >
@@ -98,7 +97,7 @@ export function SignInScreen() {
         <Pressable onPress={switchMode}>
           <Text className="text-stone-500 text-center">
             {mode === 'sign-in' ? "Don't have an account? " : 'Already have an account? '}
-            <Text className="text-orange-600 font-medium">
+            <Text className="text-[#E2706A] font-medium">
               {mode === 'sign-in' ? 'Create one' : 'Sign in'}
             </Text>
           </Text>

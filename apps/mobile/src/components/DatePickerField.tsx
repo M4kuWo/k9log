@@ -29,7 +29,7 @@ export function DatePickerField({
         </Pressable>
         {clearable && value && (
           <Pressable className="justify-center px-3" onPress={() => onChange(null)}>
-            <Text className="text-orange-600 font-medium">Clear</Text>
+            <Text className="text-[#E2706A] font-medium">Clear</Text>
           </Pressable>
         )}
       </View>

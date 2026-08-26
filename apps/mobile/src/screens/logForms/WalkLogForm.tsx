@@ -137,7 +137,7 @@ export function WalkLogForm({
             {formatElapsed(elapsedSeconds)}
           </Text>
           <Pressable
-            className={isRunning ? 'bg-red-600 rounded-full px-6 py-3' : 'bg-orange-600 rounded-full px-6 py-3'}
+            className={isRunning ? 'bg-red-600 rounded-full px-6 py-3' : 'bg-[#E2706A] rounded-full px-6 py-3'}
             onPress={() => {
               if (isRunning) {
                 if (intervalRef.current) clearInterval(intervalRef.current);

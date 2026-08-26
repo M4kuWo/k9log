@@ -18,7 +18,7 @@ const Stack = createNativeStackNavigator<MainStackParamList>();
 function LoadingScreen() {
   return (
     <View className="flex-1 items-center justify-center bg-stone-50">
-      <ActivityIndicator color="#EA580C" />
+      <ActivityIndicator color="#E2706A" />
     </View>
   );
 }
@@ -38,7 +38,7 @@ function HouseholdGate({ householdId }: { householdId: string }) {
     <NavigationContainer>
       <Stack.Navigator
         screenOptions={{
-          headerTintColor: '#EA580C',
+          headerTintColor: '#E2706A',
           headerStyle: { backgroundColor: '#FAFAF9' },
           headerTitleStyle: { color: '#1c1917' },
           contentStyle: { backgroundColor: '#FAFAF9' },
@@ -52,7 +52,7 @@ function HouseholdGate({ householdId }: { householdId: string }) {
             title: 'K9log',
             headerRight: () => (
               <Pressable onPress={() => navigation.navigate('Reports')} hitSlop={8}>
-                <Text className="text-orange-600 font-medium">Reports</Text>
+                <Text className="text-[#E2706A] font-medium">Reports</Text>
               </Pressable>
             ),
           })}

@@ -13,7 +13,8 @@ import {
 } from '@k9log/shared';
 import { supabase } from '../lib/supabase';
 import { DogSelector } from '../components/DogSelector';
-import { LOG_KIND_ICONS } from '../constants/logIcons';
+import { LOG_KIND_ICONS, LOG_KIND_COLORS } from '../constants/logIcons';
+import { PALETTE, PALETTE_SOFT } from '../constants/palette';
 
 const RANGE_LABELS: Record<ReportRange, string> = { day: 'Day', week: 'Week', month: 'Month' };
 
@@ -42,10 +43,14 @@ function ReportCard({
   value: string;
   sub?: string;
 }) {
+  const color = LOG_KIND_COLORS[kind];
   return (
     <View className="bg-white border border-stone-200 rounded-xl px-4 py-3 shadow-sm flex-row items-center gap-3">
-      <View className="w-9 h-9 rounded-full bg-orange-50 items-center justify-center">
-        <Ionicons name={LOG_KIND_ICONS[kind]} size={18} color="#EA580C" />
+      <View
+        className="w-9 h-9 rounded-full items-center justify-center"
+        style={{ backgroundColor: PALETTE_SOFT[color] }}
+      >
+        <Ionicons name={LOG_KIND_ICONS[kind]} size={18} color={PALETTE[color]} />
       </View>
       <Text className="flex-1 text-base font-medium text-stone-900">{title}</Text>
       <View className="items-end">
@@ -86,7 +91,7 @@ export function ReportsScreen({ householdId }: { householdId: string }) {
             onPress={() => setRange(r)}
             className={
               r === range
-                ? 'bg-orange-600 rounded-full px-4 py-2'
+                ? 'bg-[#E2706A] rounded-full px-4 py-2'
                 : 'bg-white border border-stone-200 rounded-full px-4 py-2'
             }
           >
@@ -99,7 +104,7 @@ export function ReportsScreen({ householdId }: { householdId: string }) {
 
       {logsQuery.isLoading || !summary ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#EA580C" />
+          <ActivityIndicator color="#E2706A" />
         </View>
       ) : (
         <ScrollView contentContainerClassName="px-4 gap-2 py-2">

@@ -9,7 +9,8 @@ import { supabase } from '../lib/supabase';
 import { DogSelector } from '../components/DogSelector';
 import { useWalkTimer } from '../walkTimer/WalkTimerProvider';
 import { formatElapsed } from '../walkTimer/format';
-import { LOG_KIND_ICONS } from '../constants/logIcons';
+import { LOG_KIND_ICONS, LOG_KIND_COLORS } from '../constants/logIcons';
+import { PALETTE, PALETTE_SOFT } from '../constants/palette';
 import type { MainStackParamList } from '../navigation/types';
 
 type Props = NativeStackScreenProps<MainStackParamList, 'Timeline'>;
@@ -25,9 +26,13 @@ const LOG_KIND_LABELS: Record<LogKind, string> = {
 };
 
 function LogIcon({ kind, size = 20 }: { kind: LogKind; size?: number }) {
+  const color = LOG_KIND_COLORS[kind];
   return (
-    <View className="w-9 h-9 rounded-full bg-orange-50 items-center justify-center">
-      <Ionicons name={LOG_KIND_ICONS[kind]} size={size} color="#EA580C" />
+    <View
+      className="w-9 h-9 rounded-full items-center justify-center"
+      style={{ backgroundColor: PALETTE_SOFT[color] }}
+    >
+      <Ionicons name={LOG_KIND_ICONS[kind]} size={size} color={PALETTE[color]} />
     </View>
   );
 }
@@ -111,7 +116,7 @@ export function TimelineScreen({ route, navigation }: Props) {
 
       {activeWalkStartedAt && activeDogId && (
         <Pressable
-          className="mx-4 mb-2 bg-orange-600 rounded-xl px-4 py-3 flex-row items-center justify-between shadow-sm"
+          className="mx-4 mb-2 bg-[#E2706A] rounded-xl px-4 py-3 flex-row items-center justify-between shadow-sm"
           onPress={() => navigation.navigate('AddLog', { dogId: activeDogId, kind: 'walk' })}
         >
           <View className="flex-row items-center gap-2">
@@ -126,7 +131,7 @@ export function TimelineScreen({ route, navigation }: Props) {
 
       {timelineQuery.isLoading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#EA580C" />
+          <ActivityIndicator color="#E2706A" />
         </View>
       ) : (
         <FlatList
@@ -163,7 +168,7 @@ export function TimelineScreen({ route, navigation }: Props) {
       )}
 
       <Pressable
-        className="absolute bottom-6 right-6 bg-orange-600 w-14 h-14 rounded-full items-center justify-center shadow-sm"
+        className="absolute bottom-6 right-6 bg-[#E2706A] w-14 h-14 rounded-full items-center justify-center shadow-sm"
         onPress={() => setPickerVisible(true)}
         disabled={!activeDogId}
       >

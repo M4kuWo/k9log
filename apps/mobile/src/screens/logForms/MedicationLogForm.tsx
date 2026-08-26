@@ -99,7 +99,7 @@ export function MedicationLogForm({
         <Switch
           value={isRecurring}
           onValueChange={setIsRecurring}
-          trackColor={{ true: '#EA580C' }}
+          trackColor={{ true: '#E2706A' }}
         />
       </View>
       {isRecurring && (

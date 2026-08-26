@@ -79,11 +79,8 @@ export function LogFormShell({
         {error && <Text className="text-red-600">{error}</Text>}
 
         <Pressable
-          className={
-            isSubmitting
-              ? 'bg-orange-300 rounded-xl py-3 items-center'
-              : 'bg-orange-600 rounded-xl py-3 items-center'
-          }
+          className="bg-[#E2706A] rounded-xl py-3 items-center"
+          style={isSubmitting ? { opacity: 0.6 } : undefined}
           disabled={isSubmitting}
           onPress={onSubmit}
         >

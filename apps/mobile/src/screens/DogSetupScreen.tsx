@@ -53,11 +53,8 @@ export function DogSetupScreen({
           <Text className="text-red-600">{(mutation.error as Error).message}</Text>
         )}
         <Pressable
-          className={
-            !name.trim() || mutation.isPending
-              ? 'bg-orange-300 rounded-xl py-3 items-center'
-              : 'bg-orange-600 rounded-xl py-3 items-center'
-          }
+          className="bg-[#E2706A] rounded-xl py-3 items-center"
+          style={!name.trim() || mutation.isPending ? { opacity: 0.5 } : undefined}
           disabled={!name.trim() || mutation.isPending}
           onPress={() => mutation.mutate()}
         >

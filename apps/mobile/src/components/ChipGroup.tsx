@@ -31,7 +31,7 @@ export function ChipGroup<T extends string>({
               onPress={() => onChange(option)}
               className={
                 selected
-                  ? 'bg-orange-600 rounded-full px-4 py-2'
+                  ? 'bg-[#E2706A] rounded-full px-4 py-2'
                   : 'bg-white border border-stone-200 rounded-full px-4 py-2'
               }
             >
