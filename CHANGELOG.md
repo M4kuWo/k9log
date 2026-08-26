@@ -2,6 +2,10 @@
 
 Tagged checkpoints in git history. To go back to any version: `git checkout v1.0.0` (or `git diff v1.0.0 main` to see what changed since).
 
+## v1.4.2 — 2026-08-27
+
+The v1.4.1 upload fix was itself wrong — turned out expo-file-system 57 dropped `readAsStringAsync` in favor of a new `File`/`Directory` class API (`new File(uri).arrayBuffer()`), which is what this project's own AGENTS.md warns about re-checking before writing Expo code. Also fixed the picker reopening right after picking a photo: the app's default 3x mutation retry was re-running the whole upload step (including the picker launch) on failure — the picker launch is no longer part of the retrying mutation.
+
 ## v1.4.1 — 2026-08-27
 
 - Fixed avatar photo uploads: `fetch(fileUri).blob()` was silently uploading a bogus 14-byte "File not found" response instead of the real image (avatar showed blank everywhere after upload). Now reads the file via expo-file-system + base64 decoding, the reliable approach for local files in React Native.
