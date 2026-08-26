@@ -8,7 +8,7 @@ export function PasswordInput(props: TextInputProps) {
   return (
     <View className="relative justify-center">
       <TextInput
-        className="bg-white border border-stone-200 rounded-xl px-4 py-3 pr-11 text-base shadow-sm"
+        className="bg-white dark:bg-stone-800 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 pr-11 text-base shadow-sm"
         placeholderTextColor="#a8a29e"
         secureTextEntry={!visible}
         autoCapitalize="none"

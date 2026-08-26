@@ -47,15 +47,15 @@ export function SignInScreen() {
     !isSubmitting && !!email && !!password && (mode === 'sign-in' || !passwordsMismatch);
 
   return (
-    <SafeAreaView className="flex-1 bg-stone-50">
+    <SafeAreaView className="flex-1 bg-stone-50 dark:bg-stone-900">
       <View className="flex-1 justify-center px-6 gap-4">
         <Text className="text-3xl font-bold text-[#E2706A] mb-2">K9log</Text>
-        <Text className="text-stone-500 mb-4">
+        <Text className="text-stone-500 dark:text-stone-400 mb-4">
           {mode === 'sign-in' ? 'Sign in to your household' : 'Create your account'}
         </Text>
 
         <TextInput
-          className="bg-white border border-stone-200 rounded-xl px-4 py-3 text-base shadow-sm"
+          className="bg-white dark:bg-stone-800 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-base shadow-sm"
           placeholder="Email"
           placeholderTextColor="#a8a29e"
           autoCapitalize="none"
@@ -95,7 +95,7 @@ export function SignInScreen() {
         </Pressable>
 
         <Pressable onPress={switchMode}>
-          <Text className="text-stone-500 text-center">
+          <Text className="text-stone-500 dark:text-stone-400 text-center">
             {mode === 'sign-in' ? "Don't have an account? " : 'Already have an account? '}
             <Text className="text-[#E2706A] font-medium">
               {mode === 'sign-in' ? 'Create one' : 'Sign in'}

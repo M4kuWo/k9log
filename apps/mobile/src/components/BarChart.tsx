@@ -22,13 +22,13 @@ export function BarChart({ data, unit }: { data: ChartBucket[]; unit: string }) 
       <View className="flex-row gap-1">
         {data.map((bucket, i) => (
           <View key={i} className="flex-1 items-center">
-            <Text className="text-stone-400 text-xs" numberOfLines={1}>
+            <Text className="text-stone-400 dark:text-stone-500 text-xs" numberOfLines={1}>
               {bucket.label}
             </Text>
           </View>
         ))}
       </View>
-      <Text className="text-stone-400 text-xs text-center mt-1">{unit}</Text>
+      <Text className="text-stone-400 dark:text-stone-500 text-xs text-center mt-1">{unit}</Text>
     </View>
   );
 }

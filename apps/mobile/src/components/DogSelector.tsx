@@ -41,7 +41,11 @@ export function DogSelector({
             </Pressable>
             <Pressable onPress={() => onSelect(dog.id)}>
               <Text
-                className={selected ? 'font-semibold text-stone-900' : 'text-stone-600'}
+                className={
+                  selected
+                    ? 'font-semibold text-stone-900 dark:text-stone-100'
+                    : 'text-stone-600 dark:text-stone-400'
+                }
                 numberOfLines={1}
               >
                 {dog.name}
@@ -52,10 +56,10 @@ export function DogSelector({
       })}
       {onAddDog && (
         <Pressable onPress={onAddDog} className="items-center gap-1" style={{ width: 64 }}>
-          <View className="w-12 h-12 rounded-full border border-dashed border-stone-300 items-center justify-center">
+          <View className="w-12 h-12 rounded-full border border-dashed border-stone-300 dark:border-stone-600 items-center justify-center">
             <Ionicons name="add" size={22} color="#a8a29e" />
           </View>
-          <Text className="text-stone-500" numberOfLines={1}>
+          <Text className="text-stone-500 dark:text-stone-400" numberOfLines={1}>
             Add dog
           </Text>
         </Pressable>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { View, Text, Pressable, ActivityIndicator, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
+import { useColorScheme } from 'nativewind';
 import {
   listDogs,
   getLogsSince,
@@ -16,7 +17,7 @@ import { DogSelector } from '../components/DogSelector';
 import { BarChart } from '../components/BarChart';
 import { LogGlyph } from '../components/LogGlyph';
 import { LOG_KIND_COLORS } from '../constants/logIcons';
-import { PALETTE, PALETTE_SOFT } from '../constants/palette';
+import { PALETTE, PALETTE_SOFT, PALETTE_SOFT_DARK } from '../constants/palette';
 
 const RANGE_LABELS: Record<ReportRange, string> = {
   day: 'Day',
@@ -51,18 +52,20 @@ function ReportCard({
   sub?: string;
 }) {
   const color = LOG_KIND_COLORS[kind];
+  const { colorScheme } = useColorScheme();
+  const soft = colorScheme === 'dark' ? PALETTE_SOFT_DARK : PALETTE_SOFT;
   return (
-    <View className="bg-white border border-stone-200 rounded-xl px-4 py-3 shadow-sm flex-row items-center gap-3">
+    <View className="bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 shadow-sm flex-row items-center gap-3">
       <View
         className="w-9 h-9 rounded-full items-center justify-center"
-        style={{ backgroundColor: PALETTE_SOFT[color] }}
+        style={{ backgroundColor: soft[color] }}
       >
         <LogGlyph kind={kind} size={18} color={PALETTE[color]} />
       </View>
-      <Text className="flex-1 text-base font-medium text-stone-900">{title}</Text>
+      <Text className="flex-1 text-base font-medium text-stone-900 dark:text-stone-100">{title}</Text>
       <View className="items-end">
-        <Text className="text-base text-stone-900">{value}</Text>
-        {sub && <Text className="text-stone-400 text-sm">{sub}</Text>}
+        <Text className="text-base text-stone-900 dark:text-stone-100">{value}</Text>
+        {sub && <Text className="text-stone-400 dark:text-stone-500 text-sm">{sub}</Text>}
       </View>
     </View>
   );
@@ -88,7 +91,7 @@ export function ReportsScreen({ householdId }: { householdId: string }) {
   const summary = logsQuery.data ? summarize(logsQuery.data) : null;
 
   return (
-    <SafeAreaView className="flex-1 bg-stone-50">
+    <SafeAreaView className="flex-1 bg-stone-50 dark:bg-stone-900">
       <DogSelector dogs={dogs} activeDogId={activeDogId} onSelect={setSelectedDogId} />
 
       <View className="flex-row gap-2 px-4 pb-2">
@@ -99,10 +102,10 @@ export function ReportsScreen({ householdId }: { householdId: string }) {
             className={
               r === range
                 ? 'bg-[#E2706A] rounded-full px-4 py-2'
-                : 'bg-white border border-stone-200 rounded-full px-4 py-2'
+                : 'bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-full px-4 py-2'
             }
           >
-            <Text className={r === range ? 'text-white font-medium' : 'text-stone-700'}>
+            <Text className={r === range ? 'text-white font-medium' : 'text-stone-700 dark:text-stone-300'}>
               {RANGE_LABELS[r]}
             </Text>
           </Pressable>
@@ -116,8 +119,8 @@ export function ReportsScreen({ householdId }: { householdId: string }) {
       ) : (
         <ScrollView contentContainerClassName="px-4 gap-2 py-2">
           {range !== 'day' && (
-            <View className="bg-white border border-stone-200 rounded-xl px-4 py-3 shadow-sm gap-2 mb-1">
-              <Text className="font-semibold text-stone-900">Walk minutes</Text>
+            <View className="bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 shadow-sm gap-2 mb-1">
+              <Text className="font-semibold text-stone-900 dark:text-stone-100">Walk minutes</Text>
               <BarChart data={bucketWalkMinutes(logsQuery.data ?? [], range)} unit="minutes" />
             </View>
           )}

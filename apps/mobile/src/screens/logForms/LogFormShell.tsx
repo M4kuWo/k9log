@@ -41,16 +41,16 @@ export function LogFormShell({
   const [showPicker, setShowPicker] = useState(false);
 
   return (
-    <SafeAreaView className="flex-1 bg-stone-50">
+    <SafeAreaView className="flex-1 bg-stone-50 dark:bg-stone-900">
       <ScrollView className="flex-1 px-6" contentContainerClassName="gap-4 py-4">
-        <Text className="text-2xl font-bold text-stone-900">{title}</Text>
+        <Text className="text-2xl font-bold text-stone-900 dark:text-stone-100">{title}</Text>
 
         <Pressable
-          className="bg-white border border-stone-200 rounded-xl px-4 py-3 shadow-sm"
+          className="bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 shadow-sm"
           onPress={() => setShowPicker(true)}
         >
-          <Text className="text-stone-500 text-sm">When</Text>
-          <Text className="text-base text-stone-900">{occurredAt.toLocaleString()}</Text>
+          <Text className="text-stone-500 dark:text-stone-400 text-sm">When</Text>
+          <Text className="text-base text-stone-900 dark:text-stone-100">{occurredAt.toLocaleString()}</Text>
         </Pressable>
         {showPicker && (
           <DateTimePicker
@@ -66,10 +66,11 @@ export function LogFormShell({
         {children}
 
         <View className="gap-2">
-          <Text className="text-stone-500 text-sm">Notes (optional)</Text>
+          <Text className="text-stone-500 dark:text-stone-400 text-sm">Notes (optional)</Text>
           <TextInput
-            className="bg-white border border-stone-200 rounded-xl px-4 py-3 text-base shadow-sm"
+            className="bg-white dark:bg-stone-800 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-base shadow-sm"
             placeholder="Anything else worth noting"
+            placeholderTextColor="#a8a29e"
             value={notes}
             onChangeText={onChangeNotes}
             multiline

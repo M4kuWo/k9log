@@ -31,23 +31,23 @@ export function CategoryDetailScreen({
     .sort((a, b) => new Date(b.log.occurred_at).getTime() - new Date(a.log.occurred_at).getTime());
 
   return (
-    <SafeAreaView className="flex-1 bg-stone-50">
+    <SafeAreaView className="flex-1 bg-stone-50 dark:bg-stone-900">
       <FlatList
         data={entries}
         keyExtractor={(item) => item.log.id}
         contentContainerClassName="px-4 gap-2 py-4"
         ListEmptyComponent={
-          <Text className="text-stone-400 text-center mt-12">No entries yet.</Text>
+          <Text className="text-stone-400 dark:text-stone-500 text-center mt-12">No entries yet.</Text>
         }
         renderItem={({ item }) => (
           <Pressable
-            className="bg-white border border-stone-200 rounded-xl px-4 py-3 shadow-sm flex-row items-center gap-3"
+            className="bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 shadow-sm flex-row items-center gap-3"
             onPress={() => onSelectEntry(item)}
           >
             <LogIcon kind={item.kind} />
             <View className="flex-1">
-              <Text className="text-base font-medium text-stone-900">{entryTitle(item)}</Text>
-              <Text className="text-stone-400 text-sm mt-0.5">
+              <Text className="text-base font-medium text-stone-900 dark:text-stone-100">{entryTitle(item)}</Text>
+              <Text className="text-stone-400 dark:text-stone-500 text-sm mt-0.5">
                 {formatRelative(item.log.occurred_at)}
                 {item.log.notes ? ` · ${item.log.notes}` : ''}
               </Text>

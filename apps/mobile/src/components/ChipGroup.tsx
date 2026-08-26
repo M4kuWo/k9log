@@ -15,7 +15,7 @@ export function ChipGroup<T extends string>({
 }) {
   return (
     <View className="gap-2">
-      <Text className="text-stone-500 text-sm">{label}</Text>
+      <Text className="text-stone-500 dark:text-stone-400 text-sm">{label}</Text>
       <View
         className={
           error
@@ -32,10 +32,10 @@ export function ChipGroup<T extends string>({
               className={
                 selected
                   ? 'bg-[#E2706A] rounded-full px-4 py-2'
-                  : 'bg-white border border-stone-200 rounded-full px-4 py-2'
+                  : 'bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-full px-4 py-2'
               }
             >
-              <Text className={selected ? 'text-white font-medium' : 'text-stone-700'}>
+              <Text className={selected ? 'text-white font-medium' : 'text-stone-700 dark:text-stone-300'}>
                 {option}
               </Text>
             </Pressable>

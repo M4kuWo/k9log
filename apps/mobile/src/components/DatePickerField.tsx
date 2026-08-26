@@ -17,13 +17,13 @@ export function DatePickerField({
 
   return (
     <View className="gap-2">
-      <Text className="text-stone-500 text-sm">{label}</Text>
+      <Text className="text-stone-500 dark:text-stone-400 text-sm">{label}</Text>
       <View className="flex-row gap-2">
         <Pressable
-          className="flex-1 bg-white border border-stone-200 rounded-xl px-4 py-3 shadow-sm"
+          className="flex-1 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 shadow-sm"
           onPress={() => setShowPicker(true)}
         >
-          <Text className="text-base text-stone-900">
+          <Text className="text-base text-stone-900 dark:text-stone-100">
             {value ? value.toLocaleDateString() : 'Not set'}
           </Text>
         </Pressable>

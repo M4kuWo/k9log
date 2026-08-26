@@ -32,18 +32,18 @@ export function DogSetupScreen({
   });
 
   return (
-    <SafeAreaView className="flex-1 bg-stone-50">
+    <SafeAreaView className="flex-1 bg-stone-50 dark:bg-stone-900">
       <View className="flex-1 justify-center px-6 gap-4">
-        <Text className="text-2xl font-bold text-stone-900">Add your dog</Text>
+        <Text className="text-2xl font-bold text-stone-900 dark:text-stone-100">Add your dog</Text>
         <TextInput
-          className="bg-white border border-stone-200 rounded-xl px-4 py-3 text-base shadow-sm"
+          className="bg-white dark:bg-stone-800 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-base shadow-sm"
           placeholder="Name"
           placeholderTextColor="#a8a29e"
           value={name}
           onChangeText={setName}
         />
         <TextInput
-          className="bg-white border border-stone-200 rounded-xl px-4 py-3 text-base shadow-sm"
+          className="bg-white dark:bg-stone-800 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-base shadow-sm"
           placeholder="Breed (optional)"
           placeholderTextColor="#a8a29e"
           value={breed}

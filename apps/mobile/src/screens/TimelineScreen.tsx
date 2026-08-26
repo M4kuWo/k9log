@@ -70,7 +70,7 @@ export function TimelineScreen({ route, navigation }: Props) {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-stone-50">
+    <SafeAreaView className="flex-1 bg-stone-50 dark:bg-stone-900">
       <DogSelector
         dogs={dogs}
         activeDogId={activeDogId}

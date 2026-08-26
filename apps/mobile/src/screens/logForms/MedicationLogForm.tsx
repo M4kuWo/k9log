@@ -95,7 +95,7 @@ export function MedicationLogForm({
         </View>
       </View>
       <View className="flex-row items-center justify-between">
-        <Text className="text-stone-700 text-base">Recurring</Text>
+        <Text className="text-stone-700 dark:text-stone-300 text-base">Recurring</Text>
         <Switch
           value={isRecurring}
           onValueChange={setIsRecurring}

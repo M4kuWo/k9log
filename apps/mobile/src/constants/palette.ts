@@ -17,6 +17,16 @@ export const PALETTE_SOFT = {
   red: '#FBE3E1',
 } as const;
 
+// Dark-mode counterpart of PALETTE_SOFT — the light tints above read as
+// washed-out/glary against a dark background, so icon badges use a muted
+// dark tint of the same hue instead.
+export const PALETTE_SOFT_DARK = {
+  blue: '#2A3A42',
+  yellow: '#453A22',
+  orange: '#453324',
+  red: '#452A28',
+} as const;
+
 export type PaletteColor = keyof typeof PALETTE;
 
 export const PALETTE_ORDER: PaletteColor[] = ['blue', 'yellow', 'orange', 'red'];

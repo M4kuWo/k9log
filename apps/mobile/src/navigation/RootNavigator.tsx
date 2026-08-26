@@ -1,10 +1,12 @@
 import { View, Text, Pressable, ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { getMyHouseholds, listDogs } from '@k9log/shared';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../auth/AuthProvider';
+import { useColorScheme } from '../theme/ThemeProvider';
 import { SignInScreen } from '../screens/SignInScreen';
 import { HouseholdSetupScreen } from '../screens/HouseholdSetupScreen';
 import { DogSetupScreen } from '../screens/DogSetupScreen';
@@ -13,13 +15,14 @@ import { AddLogScreen } from '../screens/AddLogScreen';
 import { ReportsScreen } from '../screens/ReportsScreen';
 import { AvatarPickerScreen } from '../screens/AvatarPickerScreen';
 import { CategoryDetailScreen } from '../screens/CategoryDetailScreen';
+import { SettingsScreen } from '../screens/SettingsScreen';
 import type { MainStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
 
 function LoadingScreen() {
   return (
-    <View className="flex-1 items-center justify-center bg-stone-50">
+    <View className="flex-1 items-center justify-center bg-stone-50 dark:bg-stone-900">
       <ActivityIndicator color="#E2706A" />
     </View>
   );
@@ -30,6 +33,8 @@ function HouseholdGate({ householdId }: { householdId: string }) {
     queryKey: ['dogs', householdId],
     queryFn: () => listDogs(supabase, householdId),
   });
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   if (dogsQuery.isLoading) return <LoadingScreen />;
   if (!dogsQuery.data || dogsQuery.data.length === 0) {
@@ -41,9 +46,9 @@ function HouseholdGate({ householdId }: { householdId: string }) {
       <Stack.Navigator
         screenOptions={{
           headerTintColor: '#E2706A',
-          headerStyle: { backgroundColor: '#FAFAF9' },
-          headerTitleStyle: { color: '#1c1917' },
-          contentStyle: { backgroundColor: '#FAFAF9' },
+          headerStyle: { backgroundColor: isDark ? '#1c1917' : '#FAFAF9' },
+          headerTitleStyle: { color: isDark ? '#FAFAF9' : '#1c1917' },
+          contentStyle: { backgroundColor: isDark ? '#1c1917' : '#FAFAF9' },
         }}
       >
         <Stack.Screen
@@ -52,6 +57,11 @@ function HouseholdGate({ householdId }: { householdId: string }) {
           initialParams={{ householdId }}
           options={({ navigation }) => ({
             title: 'K9log',
+            headerLeft: () => (
+              <Pressable onPress={() => navigation.navigate('Settings')} hitSlop={8}>
+                <Ionicons name="settings-outline" size={22} color="#E2706A" />
+              </Pressable>
+            ),
             headerRight: () => (
               <Pressable onPress={() => navigation.navigate('Reports')} hitSlop={8}>
                 <Text className="text-[#E2706A] font-medium">Data</Text>
@@ -99,6 +109,7 @@ function HouseholdGate({ householdId }: { householdId: string }) {
             />
           )}
         </Stack.Screen>
+        <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: 'Settings' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -15,4 +15,5 @@ export type MainStackParamList = {
     fallbackColor: PaletteColor;
   };
   CategoryDetail: { dogId: string; kind: LogKind; title: string };
+  Settings: undefined;
 };

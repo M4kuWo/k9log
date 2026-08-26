@@ -19,14 +19,14 @@ export function HouseholdSetupScreen() {
   });
 
   return (
-    <SafeAreaView className="flex-1 bg-stone-50">
+    <SafeAreaView className="flex-1 bg-stone-50 dark:bg-stone-900">
       <View className="flex-1 justify-center px-6 gap-4">
-        <Text className="text-2xl font-bold text-stone-900">Name your household</Text>
-        <Text className="text-stone-500">
+        <Text className="text-2xl font-bold text-stone-900 dark:text-stone-100">Name your household</Text>
+        <Text className="text-stone-500 dark:text-stone-400">
           Everyone you invite later will see the same shared timeline.
         </Text>
         <TextInput
-          className="bg-white border border-stone-200 rounded-xl px-4 py-3 text-base shadow-sm"
+          className="bg-white dark:bg-stone-800 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-base shadow-sm"
           placeholder="e.g. The Smiths"
           placeholderTextColor="#a8a29e"
           value={name}

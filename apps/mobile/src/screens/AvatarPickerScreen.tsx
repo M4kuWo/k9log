@@ -77,7 +77,7 @@ export function AvatarPickerScreen({
   const isBusy = isPicking || uploadMutation.isPending || saveMutation.isPending;
 
   return (
-    <SafeAreaView className="flex-1 bg-stone-50">
+    <SafeAreaView className="flex-1 bg-stone-50 dark:bg-stone-900">
       <View className="flex-1 px-6 gap-6 py-6">
         <View className="items-center gap-3">
           <DogAvatar name={dogName} photoUrl={previewUrl} fallbackColor={fallbackColor} size={96} />
@@ -85,7 +85,7 @@ export function AvatarPickerScreen({
         </View>
 
         <View className="gap-2">
-          <Text className="text-stone-500 text-sm">Choose a color</Text>
+          <Text className="text-stone-500 dark:text-stone-400 text-sm">Choose a color</Text>
           <View className="flex-row gap-3">
             {PALETTE_ORDER.map((color) => (
               <Pressable
