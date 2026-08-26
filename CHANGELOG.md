@@ -2,6 +2,14 @@
 
 Tagged checkpoints in git history. To go back to any version: `git checkout v1.0.0` (or `git diff v1.0.0 main` to see what changed since).
 
+## v1.6.0 — 2026-08-26
+
+Household sharing, so a second person can join and see the same dogs/timeline.
+
+- The header's "Data" link moved to an icon next to the settings gear (top left); the user's avatar (initial-letter circle) now sits top right, tapping into a new Household screen with your info, the member list, and an invite code to share.
+- The invite code is just the household's own id — copy it from the Household screen, and a new user enters it via a Create/Join toggle now on the household setup screen instead of always creating a fresh one.
+- New `profiles` table (synced from `auth.users` via trigger) so household members can see each other's email — the API has no other way to read another user's account info.
+
 ## v1.5.0 — 2026-08-27
 
 Settings screen (gear icon in the header) with Light / Dark / Match device theme choice, persisted across sessions. Dark variants applied throughout the app. The manual light/dark override only works natively (iOS/Android) — on web, NativeWind's dark mode ties to a real CSS media query the OS controls, which JS can't force.

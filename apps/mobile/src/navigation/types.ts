@@ -16,4 +16,5 @@ export type MainStackParamList = {
   };
   CategoryDetail: { dogId: string; kind: LogKind; title: string };
   Settings: undefined;
+  Household: undefined;
 };

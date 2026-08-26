@@ -1,9 +1,9 @@
-import { View, Text, Pressable, ActivityIndicator } from 'react-native';
+import { View, Pressable, ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
-import { getMyHouseholds, listDogs } from '@k9log/shared';
+import { getMyHouseholds, listDogs, type Household } from '@k9log/shared';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../auth/AuthProvider';
 import { useColorScheme } from '../theme/ThemeProvider';
@@ -16,7 +16,10 @@ import { ReportsScreen } from '../screens/ReportsScreen';
 import { AvatarPickerScreen } from '../screens/AvatarPickerScreen';
 import { CategoryDetailScreen } from '../screens/CategoryDetailScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
+import { HouseholdScreen } from '../screens/HouseholdScreen';
+import { UserAvatar } from '../components/UserAvatar';
 import type { MainStackParamList } from './types';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
 
@@ -28,7 +31,33 @@ function LoadingScreen() {
   );
 }
 
-function HouseholdGate({ householdId }: { householdId: string }) {
+function HeaderDataButton({
+  navigation,
+}: {
+  navigation: NativeStackNavigationProp<MainStackParamList, 'Timeline'>;
+}) {
+  return (
+    <Pressable onPress={() => navigation.navigate('Reports')} hitSlop={8}>
+      <Ionicons name="stats-chart-outline" size={22} color="#E2706A" />
+    </Pressable>
+  );
+}
+
+function HeaderUserButton({
+  navigation,
+}: {
+  navigation: NativeStackNavigationProp<MainStackParamList, 'Timeline'>;
+}) {
+  const { session } = useAuth();
+  return (
+    <Pressable onPress={() => navigation.navigate('Household')} hitSlop={8}>
+      <UserAvatar email={session?.user.email ?? '?'} size={28} />
+    </Pressable>
+  );
+}
+
+function HouseholdGate({ household }: { household: Household }) {
+  const householdId = household.id;
   const dogsQuery = useQuery({
     queryKey: ['dogs', householdId],
     queryFn: () => listDogs(supabase, householdId),
@@ -58,15 +87,14 @@ function HouseholdGate({ householdId }: { householdId: string }) {
           options={({ navigation }) => ({
             title: 'K9log',
             headerLeft: () => (
-              <Pressable onPress={() => navigation.navigate('Settings')} hitSlop={8}>
-                <Ionicons name="settings-outline" size={22} color="#E2706A" />
-              </Pressable>
+              <View className="flex-row items-center gap-4">
+                <Pressable onPress={() => navigation.navigate('Settings')} hitSlop={8}>
+                  <Ionicons name="settings-outline" size={22} color="#E2706A" />
+                </Pressable>
+                <HeaderDataButton navigation={navigation} />
+              </View>
             ),
-            headerRight: () => (
-              <Pressable onPress={() => navigation.navigate('Reports')} hitSlop={8}>
-                <Text className="text-[#E2706A] font-medium">Data</Text>
-              </Pressable>
-            ),
+            headerRight: () => <HeaderUserButton navigation={navigation} />,
           })}
         />
         <Stack.Screen
@@ -110,6 +138,9 @@ function HouseholdGate({ householdId }: { householdId: string }) {
           )}
         </Stack.Screen>
         <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: 'Settings' }} />
+        <Stack.Screen name="Household" options={{ title: 'Household' }}>
+          {() => <HouseholdScreen household={household} />}
+        </Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -127,7 +158,7 @@ function AuthenticatedGate() {
   }
 
   // v1: one household per user (see ARCHITECTURE.md §5).
-  return <HouseholdGate householdId={householdsQuery.data[0].id} />;
+  return <HouseholdGate household={householdsQuery.data[0]} />;
 }
 
 export function RootNavigator() {

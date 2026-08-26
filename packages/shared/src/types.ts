@@ -19,6 +19,18 @@ export const HouseholdMemberSchema = z.object({
 });
 export type HouseholdMember = z.infer<typeof HouseholdMemberSchema>;
 
+export const ProfileSchema = z.object({
+  id: z.string().uuid(),
+  email: z.string(),
+  created_at: z.string(),
+});
+export type Profile = z.infer<typeof ProfileSchema>;
+
+export const HouseholdMemberWithProfileSchema = HouseholdMemberSchema.extend({
+  profile: ProfileSchema,
+});
+export type HouseholdMemberWithProfile = z.infer<typeof HouseholdMemberWithProfileSchema>;
+
 export const DogSchema = z.object({
   id: z.string().uuid(),
   household_id: z.string().uuid(),
