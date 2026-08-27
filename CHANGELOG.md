@@ -2,6 +2,11 @@
 
 Tagged checkpoints in git history. To go back to any version: `git checkout v1.0.0` (or `git diff v1.0.0 main` to see what changed since).
 
+## v1.7.1 — 2026-08-27
+
+- The Telegram link-code screen now copies `/link <code>` (not just the bare code) so it pastes straight into the chat with the bot.
+- Palette deepened for real contrast: the original pastel colors failed WCAG AA against white card text (yellow was 1.53:1, needs 4.5:1) — recomputed from actual contrast ratios, not eyeballed. Small icon badges keep a separate lighter variant since they need the opposite direction (light icon on a dark tint).
+
 ## v1.7.0 — 2026-08-26
 
 Telegram bot, as the iOS path instead of a native build (see ARCHITECTURE.md's distribution notes) — going Android-only for the app itself, with a Telegram bot covering the same logging for anyone on iOS.
