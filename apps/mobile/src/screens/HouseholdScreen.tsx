@@ -19,6 +19,7 @@ export function HouseholdScreen({ household }: { household: Household }) {
   const { session } = useAuth();
   const queryClient = useQueryClient();
   const [copied, setCopied] = useState(false);
+  const [telegramCopied, setTelegramCopied] = useState(false);
 
   const membersQuery = useQuery({
     queryKey: ['household-members', household.id],
@@ -43,6 +44,12 @@ export function HouseholdScreen({ household }: { household: Household }) {
     await Clipboard.setStringAsync(household.id);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  }
+
+  async function copyTelegramCommand(code: string) {
+    await Clipboard.setStringAsync(`/link ${code}`);
+    setTelegramCopied(true);
+    setTimeout(() => setTelegramCopied(false), 2000);
   }
 
   return (
@@ -134,14 +141,26 @@ export function HouseholdScreen({ household }: { household: Household }) {
               </Pressable>
             </View>
           ) : linkCodeMutation.data ? (
-            <View className="bg-white dark:bg-stone-800 rounded-2xl border border-stone-200 dark:border-stone-700 px-4 py-3 gap-1">
-              <Text className="text-stone-900 dark:text-stone-100 text-2xl font-bold tracking-widest text-center">
-                {linkCodeMutation.data.code}
-              </Text>
+            <Pressable
+              onPress={() => copyTelegramCommand(linkCodeMutation.data!.code)}
+              className="bg-white dark:bg-stone-800 rounded-2xl border border-stone-200 dark:border-stone-700 px-4 py-3 gap-1"
+            >
+              <View className="flex-row items-center justify-center gap-2">
+                <Text className="text-stone-900 dark:text-stone-100 text-2xl font-bold tracking-widest text-center">
+                  {linkCodeMutation.data.code}
+                </Text>
+                <Ionicons
+                  name={telegramCopied ? 'checkmark' : 'copy-outline'}
+                  size={18}
+                  color={telegramCopied ? '#E2706A' : '#a8a29e'}
+                />
+              </View>
               <Text className="text-stone-400 dark:text-stone-500 text-xs text-center">
-                Message the bot with /link {linkCodeMutation.data.code} — expires in 10 minutes
+                {telegramCopied
+                  ? `Copied — paste into the chat with the bot`
+                  : `Tap to copy /link ${linkCodeMutation.data.code} — expires in 10 minutes`}
               </Text>
-            </View>
+            </Pressable>
           ) : (
             <Pressable
               onPress={() => linkCodeMutation.mutate()}
