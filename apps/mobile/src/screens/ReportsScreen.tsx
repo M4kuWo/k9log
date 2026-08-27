@@ -17,7 +17,7 @@ import { DogSelector } from '../components/DogSelector';
 import { BarChart } from '../components/BarChart';
 import { LogGlyph } from '../components/LogGlyph';
 import { LOG_KIND_COLORS } from '../constants/logIcons';
-import { PALETTE, PALETTE_SOFT, PALETTE_SOFT_DARK } from '../constants/palette';
+import { PALETTE, PALETTE_VIVID, PALETTE_SOFT, PALETTE_SOFT_DARK } from '../constants/palette';
 
 const RANGE_LABELS: Record<ReportRange, string> = {
   day: 'Day',
@@ -53,14 +53,16 @@ function ReportCard({
 }) {
   const color = LOG_KIND_COLORS[kind];
   const { colorScheme } = useColorScheme();
-  const soft = colorScheme === 'dark' ? PALETTE_SOFT_DARK : PALETTE_SOFT;
+  const isDark = colorScheme === 'dark';
+  const soft = isDark ? PALETTE_SOFT_DARK : PALETTE_SOFT;
+  const iconColor = isDark ? PALETTE_VIVID[color] : PALETTE[color];
   return (
     <View className="bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 shadow-sm flex-row items-center gap-3">
       <View
         className="w-9 h-9 rounded-full items-center justify-center"
         style={{ backgroundColor: soft[color] }}
       >
-        <LogGlyph kind={kind} size={18} color={PALETTE[color]} />
+        <LogGlyph kind={kind} size={18} color={iconColor} />
       </View>
       <Text className="flex-1 text-base font-medium text-stone-900 dark:text-stone-100">{title}</Text>
       <View className="items-end">

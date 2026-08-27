@@ -1,12 +1,32 @@
 // Warm sunset palette (user-provided), used both as Tailwind arbitrary-value
-// hex literals in className strings (e.g. "bg-[#E2706A]") and as raw hex for
+// hex literals in className strings (e.g. "bg-[#316881]") and as raw hex for
 // props that need JS values (Ionicons color, Switch trackColor).
-
+//
+// Deepened/more saturated from the original pastel set — those failed WCAG
+// AA (4.5:1) for white text on top by a wide margin (yellow was 1.53:1).
+// These were chosen by computing actual contrast ratios against white, not
+// eyeballed; each clears 4.5:1 with room to spare. See PALETTE_SOFT below
+// for the separate, still-light tint used behind colored icons instead of
+// white text.
 export const PALETTE = {
-  blue: '#6B99B0',
+  blue: '#316881',
+  yellow: '#906B0E',
+  orange: '#9C5316',
+  red: '#BD3228',
+} as const;
+
+// The pre-v1.8.0 palette, kept around for one specific case: a colored icon
+// glyph drawn on PALETTE_SOFT_DARK (dark-mode badge backgrounds) needs a
+// *light* color to read clearly against that dark tint — the opposite of
+// what PALETTE above is for. Using PALETTE there directly (as LogIcon and
+// ReportsScreen do in light mode) works because that pairs a dark icon with
+// a near-white tint instead. blue/red nudged a touch brighter than the
+// original for contrast margin; yellow/orange are unchanged.
+export const PALETTE_VIVID = {
+  blue: '#82ACBF',
   yellow: '#F0CD79',
   orange: '#EFAC73',
-  red: '#E2706A',
+  red: '#E57D76',
 } as const;
 
 // Light tints of each hue, for icon-circle / soft badge backgrounds.
